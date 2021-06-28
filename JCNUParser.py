@@ -103,6 +103,8 @@ def proteinsInAlias(proteins,aliasfile):
     # Create dataframe from alias file
     aliases = aliasesFromFile(aliasfile)
     
+    proteins = [protein.upper() for protein in proteins]
+    
     # Find common proteins between two sets    
     return set(proteins).intersection(set(aliases['alias'])) 
 

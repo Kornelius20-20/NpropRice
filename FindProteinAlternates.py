@@ -16,21 +16,57 @@ from JCNUParser import aliasesFromFile
 aliasfile = r"I:\Thesis\4530.protein.aliases.v11.0.txt.gz"
 
 querylist = r"JCNUproteins.txt"
-source = 'Ensembl_Uniprot'
+source = 'Ensembl_UniProt'
 
-# Create dataframe from alias file
-frame = aliasesFromFile(aliasfile)
+def proteinNameConverter(queryprot,source=source,aliasfile=aliasfile):
+    """
+    A function to take a list of proteins and find all alternative names for 
+    the proteins that exist in the Uniprot database, using a STRING alias file
 
-# Create list of proteins from a query file
-with open(querylist,'r') as file:
-    queryprot = [protein.strip() for protein in file.readlines()]
+    Parameters
+    ----------
+    queryprot : list
+        A list of protein names as strings.
+    source : string
+        What protein output type do you want. default: Ensembl_UniProt.
+    aliasfile : String, optional
+        path to a protein alias file. The default is a hardcoded test path.
 
-# For each protein in the qeury list
-for protein in queryprot:
-    # find its STRING ID and extract it
-    stringID = frame.loc[frame['alias']==protein]['string_protein_id'].item()
+    Returns
+    -------
+    outputdict : dict
+        A dictionary with { query_name:[list of ids] } pairs.
+
+    """
+
+    # Create dataframe from alias file
+    frame = aliasesFromFile(aliasfile)
+        
+    outputdict = {}
     
-    # Find all proteins with the same ID
-    alternates = frame.loc[frame['string_protein_id']==stringID or frame['source'] == source]
+    # For each protein in the qeury list
+    for protein in queryprot:
+        # find its STRING ID and extract it
+        stringID = frame.loc[frame['alias']==protein]['string_protein_id'].item()
+        
+        # Find Uniprot ID of proteins with the same ID
+        alternates = frame.loc[(frame['string_protein_id']==stringID) & (frame['source'] == source)]
+        
+        # Create a dict for holding name: [uniprot_IDs] pairs
+        outputdict[protein] = []
+        
+        for item in alternates['alias']:
+            outputdict[protein].append(item)
+            
     
-    print(alternates[['alias','source']])
+    return outputdict
+
+
+if __name__=="__main__":
+    
+    
+    # Create list of proteins from a query file
+    with open(querylist,'r') as file:
+        queryprot = [protein.strip() for protein in file.readlines()]
+    
+    print(proteinNameConverter(queryprot, source))
