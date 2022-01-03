@@ -57,3 +57,4 @@ for node,attrs in graph.nodes(True):
             graph.nodes[node]['GO'] = list(graph.nodes[node]['GO'])[0]
 
 
+nx.write_gexf(graph,"testgraph.gexf")
