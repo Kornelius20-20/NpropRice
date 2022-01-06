@@ -1,8 +1,4 @@
-import NetCandPred,os,gzip
 import networkx as nx
-from networkx.algorithms.link_analysis import pagerank
-import matplotlib.pyplot as plt
-
 netfile = r"txt/named_ppi.tsv"
 seedfile = "txt/manual_mined_seeds.txt"
 graph = nx.Graph()
@@ -18,11 +14,6 @@ for data in lines[1:]:
     except IndexError:
         print(data)
         break
-
-# # carry out pagerank for the graph
-# outpage = pagerank(graph)
-# for node in outpage.keys():
-#     graph.add_node(node,pRank=outpage[node])
 
 greedycom = nx.algorithms.community.greedy_modularity_communities(graph)
 

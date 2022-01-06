@@ -1,15 +1,17 @@
 import networkx as nx
 import pandas as pd
+import re
 from collections import Counter
 
 
-graphfile = "drought_module2.gexf"
+graphfile = "graph.gexf"
 dframe = "txt/processed_uniprot.csv"
 
 graph = nx.read_gexf(graphfile)
 frame = pd.read_csv(dframe)
 
-import re
+pd.set_option('display.max_colwidth', 1000)
+
 
 # Add GO terms from the GO columns into a 'GO' attribute as a set
 for node in graph.nodes:
@@ -19,13 +21,20 @@ for node in graph.nodes:
         # For every node who is present in the uniprot data, get GO IDs
         biogo = row["Gene ontology (biological process)"].to_string() # + row["Gene ontology (GO)"].to_string()
         # biogo += row["Gene ontology (molecular function)"].to_string() + row["Gene ontology IDs"].to_string()
-        # Extract just the GO terms and form them into a non-redundant set
-        res = re.findall("GO:\d\d\d\d\d\d\d", biogo)
-        goset = set(res)
+        # Extract just the GO terms and form them into a non-redundant set using "GO:\d\d\d\d\d\d\d" regex
+        firstres = re.findall("    .*? \[GO", biogo)
+        res = re.findall("; .*? \[GO", biogo)
+        res = [item[2:-4] for item in res]
+        firstres = [item[4:-4] for item in firstres]
+
+        goset = set(res + firstres)
+
+
 
         # Add to the 'GO' attribute
         if len(goset) > 0:
             graph.nodes[node]['GO'] = goset
+            graph.nodes[node]['isSeed'] = True
 
 
 # Iterate over all nodes, getting nodes and their attributes
