@@ -17,14 +17,15 @@ for node in graph.nodes:
 
     if not row.empty:
         # For every node who is present in the uniprot data, get GO IDs
-        biogo = row["Gene ontology (biological process)"].to_string() + row["Gene ontology (GO)"].to_string()
-        biogo += row["Gene ontology (molecular function)"].to_string() + row["Gene ontology IDs"].to_string()
+        biogo = row["Gene ontology (biological process)"].to_string() # + row["Gene ontology (GO)"].to_string()
+        # biogo += row["Gene ontology (molecular function)"].to_string() + row["Gene ontology IDs"].to_string()
         # Extract just the GO terms and form them into a non-redundant set
         res = re.findall("GO:\d\d\d\d\d\d\d", biogo)
         goset = set(res)
 
         # Add to the 'GO' attribute
-        graph.nodes[node]['GO'] = goset
+        if len(goset) > 0:
+            graph.nodes[node]['GO'] = goset
 
 
 # Iterate over all nodes, getting nodes and their attributes
