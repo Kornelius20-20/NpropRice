@@ -113,7 +113,7 @@ def assign_best_go_id(graph):
 if __name__ == "__main__":
     graph = assign_metadata(graph,frame)
     graph = go_label_propagate_dumb(graph)
-    # for name,attrbs in graph.nodes(data=True):
-    #     print(attrbs['GO'])
+    for name,attrbs in graph.nodes(data=True):
+        print(attrbs['GO'])
     graph = assign_best_go_id(graph)
     nx.write_gexf(graph,"testgraph.gexf")
