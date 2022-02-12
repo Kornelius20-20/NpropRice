@@ -36,6 +36,7 @@ graph = graph.subgraph(greedycom[bestcom])
 nx.write_gexf(graph,"graph.gexf")
 
 
+# THIS PART IS NO LONGER USED
 # rescale the pagerank output to between 0-255
 
 def rescale(valuedict,scalemax=256,mincutoff=0):

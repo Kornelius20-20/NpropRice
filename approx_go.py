@@ -1,3 +1,10 @@
+"""
+
+Script to take the formed PPI network and assign metadata values to the nodes such as GO IDs, protein names, whether the
+given node is a present in the seed list etc.
+
+"""
+
 import networkx as nx
 import pandas as pd
 from collections import Counter
@@ -27,7 +34,7 @@ def go_label_propagate_dumb(graph):
 
     return graph
 
-def assign_metadata(graph,infoframe):
+def assign_metadata(graph,infoframe,asterm=True):
     import re
 
     # Increase column width of pd output
@@ -40,13 +47,18 @@ def assign_metadata(graph,infoframe):
             # For every node who is present in the uniprot data, get GO IDs
             biogo = row["Gene ontology (biological process)"].to_string() # + row["Gene ontology (GO)"].to_string()
             # biogo += row["Gene ontology (molecular function)"].to_string() + row["Gene ontology IDs"].to_string()
-            # Extract just the GO terms and form them into a non-redundant set using "GO:\d\d\d\d\d\d\d" regex
-            firstres = re.findall("    .*? \[GO", biogo)
-            res = re.findall("; .*? \[GO", biogo)
-            res = [item[2:-4] for item in res]
-            firstres = [item[4:-4] for item in firstres]
 
-            goset = set(res + firstres)
+            if asterm:
+                # Extract just the GO terms and form them into a non-redundant set using "GO:\d\d\d\d\d\d\d" regex
+                firstres = re.findall("GO:\d\d\d\d\d\d\d", biogo)
+                goset = set(firstres)
+            else:
+                # Extract the GO terms and add their associated names only to the list
+                firstres = re.findall("    .*? \[GO", biogo)
+                res = re.findall("; .*? \[GO", biogo)
+                res = [item[2:-4] for item in res]
+                firstres = [item[4:-4] for item in firstres]
+                goset = set(res + firstres)
 
 
 
@@ -101,5 +113,7 @@ def assign_best_go_id(graph):
 if __name__ == "__main__":
     graph = assign_metadata(graph,frame)
     graph = go_label_propagate_dumb(graph)
+    # for name,attrbs in graph.nodes(data=True):
+    #     print(attrbs['GO'])
     graph = assign_best_go_id(graph)
     nx.write_gexf(graph,"testgraph.gexf")

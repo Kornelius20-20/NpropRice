@@ -1,28 +1,34 @@
-import networkx as nx
-import pandas as pd
-import re
+"""
 
-graphfile = "testgraph.gexf"
-dframe = "txt/processed_uniprot.csv"
-pd.set_option('display.max_colwidth', 1000)
+Using the GO REST API to get the related GO terms for a particular term
 
-graph = nx.read_gexf(graphfile)
-frame = pd.read_csv(dframe)
+"""
 
-def go_label_propagate_dumb(graph):
-    # Propagate GO term from node to neighbors
-    visited = []
-    for node,attrs in graph.nodes(True):
-        if 'GO' in attrs.keys():
-            label = attrs['GO']
+def get_go_json(goterm):
+    import requests, sys, json
+    requestURL = f"https://www.ebi.ac.uk/QuickGO/services/ontology/go/terms/{goterm}/descendants?relations=is_a%2Cpart_of%2Coccurs_in%2Cregulates"
 
-            for neighbor in graph.neighbors(node):
-                if neighbor in visited or 'GO' in graph.nodes[neighbor].keys():
-                    continue
-                else:
-                    graph.nodes[neighbor]['GO'] = label
-                    visited.append(neighbor)
+    r = requests.get(requestURL, headers={"Accept": "application/json"})
 
-    return graph
+    if not r.ok:
+        r.raise_for_status()
+        sys.exit()
 
-nx.write_gexf(graph,"testgraph2.gexf")
+    responseBody = r.json()
+
+    with open('response.json', 'w') as file:
+        json.dump(responseBody, file)
+
+def parsejson(filename):
+    import json
+
+    with open(filename,'r') as file:
+        dictjson = json.load(file)
+
+
+
+if __name__ == "__main__":
+    goterm = "GO:0009819" # drought response
+    filename = "response.json"
+    get_go_json(goterm)
+    parsejson(filename)
