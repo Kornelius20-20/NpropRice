@@ -10,7 +10,7 @@ import pandas as pd
 from collections import Counter
 
 
-graphfile = "graph.gexf"
+graphfile = "test2.gexf"
 dframe = "txt/processed_uniprot.csv"
 
 graph = nx.read_gexf(graphfile)
@@ -41,7 +41,7 @@ def assign_metadata(graph,infoframe,asterm=True):
     pd.set_option('display.max_colwidth', 1000)
     # Add GO terms from the GO columns into a 'GO' attribute as a set
     for node in graph.nodes:
-        row = infoframe[infoframe['Entry'] == node]
+        row = infoframe[infoframe['Entry'] == graph.nodes[node]['label']]
 
         if not row.empty:
             # For every node who is present in the uniprot data, get GO IDs
@@ -112,7 +112,7 @@ def assign_best_go_id(graph):
 
 if __name__ == "__main__":
     graph = assign_metadata(graph,frame,asterm=False)
-    graph = go_label_propagate_dumb(graph)
+    # graph = go_label_propagate_dumb(graph)
     # for name,attrbs in graph.nodes(data=True):
     #     print(attrbs['GO'])
     graph = assign_best_go_id(graph)

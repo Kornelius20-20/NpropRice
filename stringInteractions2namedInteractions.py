@@ -8,11 +8,13 @@ to a given source or uniprot of the given source does not exist
 """
 
 import gzip, os
+import networkx as nx
 
 aliasfile = "gz/39947.protein.aliases.v11.5.txt.gz"
 source_file = "txt/ppi.tsv"
 output_file = "txt/named_ppi.tsv"
 preferred_source = "Uniprot"
+graphfile = 'test.gexf'
 
 
 def create_aliasdict(aliasfile):
@@ -76,7 +78,15 @@ def id_translate(source_file, output_file, alias_key, preferred_source,header=Fa
 
     out.close()
 
+def change_nodes_of_gexf(graphfile,alias_key, preferred_source,backup_source= "Uniprot"):
+    graph = nx.read_gexf(graphfile)
+
+    for node in graph.nodes:
+        graph.nodes[node]['label'] = alias_key[node].get(preferred_source, alias_key[node][backup_source])
+
+    nx.write_gexf(graph,'test2.gexf')
 
 if __name__ == "__main__":
     alias_key = create_aliasdict(aliasfile)
-    id_translate(source_file, output_file, alias_key, preferred_source,header=True)
+    # id_translate(source_file, output_file, alias_key, preferred_source,header=True)
+    change_nodes_of_gexf(graphfile,alias_key,'Uniprot')
