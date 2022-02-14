@@ -67,7 +67,7 @@ def assign_metadata(graph,infoframe,asterm=True):
                 graph.nodes[node]['GO'] = goset
                 graph.nodes[node]['isSeed'] = True
 
-                # from test.py. Adds protein name in place of node label
+                # from pullingGOviaREST.py. Adds protein name in place of node label
                 name = row['Protein names'].to_string()
 
                 result = re.findall("\(.*?\)", name)
@@ -111,9 +111,9 @@ def assign_best_go_id(graph):
 
 
 if __name__ == "__main__":
-    graph = assign_metadata(graph,frame)
+    graph = assign_metadata(graph,frame,asterm=False)
     graph = go_label_propagate_dumb(graph)
-    for name,attrbs in graph.nodes(data=True):
-        print(attrbs['GO'])
+    # for name,attrbs in graph.nodes(data=True):
+    #     print(attrbs['GO'])
     graph = assign_best_go_id(graph)
     nx.write_gexf(graph,"testgraph.gexf")

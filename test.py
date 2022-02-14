@@ -1,26 +1,16 @@
-"""
+import networkx as nx
+import numpy as np
 
-Using the GO REST API to get the related GO terms for a particular term
+# load weights
+weights = np.load("p.npy")
 
-"""
+# Load graph
+graph = nx.read_gexf('graph.gexf')
 
-def get_go_json(goterm):
-    import requests, sys, json
-    requestURL = f"https://www.ebi.ac.uk/QuickGO/services/ontology/go/terms/{goterm}/descendants?relations=is_a%2Cpart_of%2Coccurs_in%2Cregulates"
+weights *= 63.0/weights.max()
+i = 0
+for node in graph:
+    graph.nodes[node]['weight'] = weights[i]
+    i += 1
 
-    r = requests.get(requestURL, headers={"Accept": "application/json"})
-
-    if not r.ok:
-        r.raise_for_status()
-        sys.exit()
-
-    responseBody = r.json()
-
-    with open('response.json', 'w') as file:
-        json.dump(responseBody, file)
-
-
-if __name__ == "__main__":
-    goterm = "GO:0009819" # drought response
-    filename = "response.json"
-    get_go_json(goterm)
+nx.write_gexf(graph,'test.gexf')

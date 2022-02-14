@@ -5,6 +5,7 @@ import sys
 
 import networkx as nx
 import numpy as np
+import cupy as cp
 import os
 
 seedlist = r"txt/string_seeds.txt"
@@ -44,8 +45,22 @@ for name,degree in graph.degree:
     D[i,i] = degree
     i += 1
 
-W = np.dot(A,np.linalg.inv(D))
+try:
+    invD = np.load('tmp.npy')
+except FileNotFoundError:
+    invD = np.linalg.inv(D)
+    with open('tmp.npy', 'wb') as file:
+        np.save(file, invD)
+
+
+W = np.matmul(A.toarray(),invD)
+
 
 # RWR
-p = alpha*np.linalg.inv((1 - (1 - alpha)*W))*p0
+alp0 = alpha*p0
+p = alp0
+for i in range(10):
+    p = alp0 + (1-alpha)*np.matmul(W,p)
 
+with open('p.npy','wb') as file:
+    np.save(file,p)
