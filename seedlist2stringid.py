@@ -10,7 +10,7 @@ import os,gzip
 
 aliases = "gz/39947.protein.aliases.v11.5.txt.gz"
 seedfile = "txt/manual_mined_seeds.txt"
-seedout = "txt/31-12-seeds.txt"
+seedout = "txt/string_seeds.txt"
 
 
 def prot2stringid(protlist, aliasfile):

@@ -1,6 +1,7 @@
 import networkx as nx
-netfile = r"txt/named_ppi.tsv"
+netfile = r"txt/ppi.tsv"
 seedfile = "txt/manual_mined_seeds.txt"
+do_search = False
 graph = nx.Graph()
 
 # Open edge data file
@@ -15,23 +16,27 @@ for data in lines[1:]:
         print(data)
         break
 
-greedycom = nx.algorithms.community.greedy_modularity_communities(graph)
 
+def do_community_search(graph):
 
-# Get seed list as set
-with open(seedfile,'r') as file:
-    seeds = [line.rstrip() for line in file.readlines()]
-seeds = set(seeds)
+    greedycom = nx.algorithms.community.greedy_modularity_communities(graph)
+    # Get seed list as set
+    with open(seedfile,'r') as file:
+        seeds = [line.rstrip() for line in file.readlines()]
+    seeds = set(seeds)
 
-# Find community with highest number of seeds
-results = []
-for i in range(len(greedycom)):
-    results.append(len(seeds.intersection(set(greedycom[i]))))
+    # Find community with highest number of seeds
+    results = []
+    for i in range(len(greedycom)):
+        results.append(len(seeds.intersection(set(greedycom[i]))))
 
-bestcom = results.index(max(results))
+    bestcom = results.index(max(results))
 
-graph = graph.subgraph(greedycom[bestcom])
+    graph = graph.subgraph(greedycom[bestcom])
 
+    return graph
+
+if do_search: graph = do_community_search(graph)
 # write graph as gexf file
 nx.write_gexf(graph,"graph.gexf")
 
