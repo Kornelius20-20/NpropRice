@@ -19,16 +19,8 @@ def get_go_json(goterm):
     with open('response.json', 'w') as file:
         json.dump(responseBody, file)
 
-def parsejson(filename):
-    import json
-
-    with open(filename,'r') as file:
-        dictjson = json.load(file)
-
-
 
 if __name__ == "__main__":
     goterm = "GO:0009819" # drought response
     filename = "response.json"
     get_go_json(goterm)
-    parsejson(filename)

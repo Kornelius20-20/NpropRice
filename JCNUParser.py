@@ -19,17 +19,18 @@ NOTE:Orysa sativa -> oryza (only this organism needs to have a non-capitalized
 
     
 """
+import os
 
 import requests
 from bs4 import BeautifulSoup
 import pandas as pd
 
 # Organism in the database for which you want the stress genes
-organism = "oryza" 
+organism = "oryza"
 # Page of JNU stress gene database
-database_site = f"http://ccbb.jnu.ac.in/stressgenes/{organism}.html" 
+database_site = f"http://ccbb.jnu.ac.in/stressgenes/{organism}.html"
 # Location of protein alias file for your organism
-aliasfile = r"I:\Thesis\4530.protein.aliases.v11.0.txt.gz" 
+aliasfile = r"gz/39947.protein.aliases.v11.5.txt.gz"
 
 
 def aliasesFromFile(aliasfile):
@@ -50,37 +51,29 @@ def aliasesFromFile(aliasfile):
                                                            'alias', 'source'].
 
     """
-    
+
     import gzip
-    
+
     # load protein alias data for organism
-    try:
-        with gzip.open(aliasfile,'r') as file:
-            data = file.readlines()
-    except FileNotFoundError:
-        aliasfile = input("Path to protein alias file: ")
-        with gzip.open(aliasfile,'r') as file:
-            data = file.readlines()
-    
+    with gzip.open(os.path.join(aliasfile), 'r') as file:
+        data = file.readlines()
+
     # Decode the document
     data = [line.decode('utf-8').strip() for line in data]
 
-
     # Get only titles from the header line
-    titles = data[0].split("##")[1:-1]
+    titles = data[0].split("	")
     titles = [title.strip() for title in titles]
-    
-    
+
     # Split data lines into lists of values separated by tab delimitter
     data = [line.split('\t') for line in data[1:]]
-    
-    
-    frame = pd.DataFrame(data,columns=titles)
-    
+
+    frame = pd.DataFrame(data, columns=titles)
+
     return frame
 
 
-def proteinsInAlias(proteins,aliasfile):
+def proteinsInAlias(proteins, aliasfile):
     """
     Function to return a set of genes that are common between a list of give
     n proteins and a list of proteins generated from a protein alias file from
@@ -99,14 +92,14 @@ def proteinsInAlias(proteins,aliasfile):
         A set of proteins that are in common between database and alias file.
 
     """
-    
+
     # Create dataframe from alias file
     aliases = aliasesFromFile(aliasfile)
-    
+
     proteins = [protein.upper() for protein in proteins]
-    
+
     # Find common proteins between two sets    
-    return set(proteins).intersection(set(aliases['alias'])) 
+    return set(proteins).intersection(set(aliases['alias']))
 
 
 def main():
@@ -130,21 +123,20 @@ def main():
     page = requests.get(database_site)
 
     # Throw an error if the page get fails
-    if page.status_code == 404: 
+    if page.status_code == 404:
         raise Exception("""Couldn't find gene database for organism.
         Try changing the organism name or check viable organisms in 
         http://ccbb.jnu.ac.in/stressgenes/""")
         input()
-    
-    
+
     # Convert page to soup object and create a dataframe of the gene table
-    soup = BeautifulSoup(page.content,'html.parser')
-    table = soup.find_all('table')[2:] # Get data table without caption
+    soup = BeautifulSoup(page.content, 'html.parser')
+    table = soup.find_all('table')[2:]  # Get data table without caption
 
     frame = pd.read_html(str(table))[0]
-    
-    genes = proteinsInAlias(frame['Gene Name'],aliasfile)
-    
+    frame.to_csv('JCNUdb.csv')
+    genes = proteinsInAlias(frame['Gene Name'], aliasfile)
+
     print('Genes common between JNU stress database and STRING db aliases: \n')
     for gene in genes:
         print(gene)
@@ -152,5 +144,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-    input()
-
