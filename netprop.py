@@ -52,15 +52,18 @@ except FileNotFoundError:
     with open('tmp.npy', 'wb') as file:
         np.save(file, invD)
 
+invD = cp.array(invD)
+cA = cp.array(A.toarray())
 
-W = np.matmul(A.toarray(),invD)
-
+W = cp.matmul(cA,invD)
 
 # RWR
-alp0 = alpha*p0
+alp0 = cp.array(alpha*p0)
 p = alp0
-for i in range(10):
-    p = alp0 + (1-alpha)*np.matmul(W,p)
+for i in range(100):
+    p = alp0 + (1-alpha)*cp.matmul(W,p)
+
+p = cp.asnumpy(p)
 
 with open('p.npy','wb') as file:
     np.save(file,p)
