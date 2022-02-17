@@ -76,8 +76,8 @@ def graph_with_weights(wgraph,alias_key,p,outcode):
         # add it's weight
         wgraph.nodes[node]['weight'] = p[i]
 
-        # Get nodes to prune
-        if p[i] < cutoff: sub_nodes.append(node)
+        # Get nodes to keep
+        if p[i] > cutoff: sub_nodes.append(node)
 
         i += 1
 

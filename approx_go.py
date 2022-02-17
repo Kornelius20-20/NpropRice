@@ -10,7 +10,7 @@ import pandas as pd
 from collections import Counter
 
 
-graphfile = "test2.gexf"
+graphfile = "p -100-0.5.gexf"
 dframe = "txt/processed_uniprot.csv"
 
 graph = nx.read_gexf(graphfile)
