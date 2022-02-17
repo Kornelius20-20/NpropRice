@@ -86,7 +86,7 @@ def graph_with_weights(wgraph,alias_key,p,outcode):
     print("subgraph made")
 
 
-    outgraph = outcode + 'gexf'
+    outgraph = outcode + '.gexf'
     nx.write_gexf(prunedgraph,outgraph)
 
 # Get adjacency matrix of graph
