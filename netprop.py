@@ -68,6 +68,7 @@ def graph_with_weights(wgraph,alias_key,p,outcode):
     # Change graph labels to uniprot names
     p *= scale_limit / p.max()
 
+    sub_nodes = []
     i = 0
     for node in wgraph.nodes: # for each node
         # change its label
@@ -75,12 +76,15 @@ def graph_with_weights(wgraph,alias_key,p,outcode):
         # add it's weight
         wgraph.nodes[node]['weight'] = p[i]
 
+        # Get nodes to prune
+        if p[i] < cutoff: sub_nodes.append(node)
+
         i += 1
 
-    # get nodes that satisfy minimum scaled score
-    sub_nodes = np.argwhere(p > cutoff)
+    prunedgraph = wgraph.subgraph(sub_nodes)
 
-    prunedgraph = nx.subgraph(wgraph,sub_nodes)
+    print("subgraph made")
+
 
     outgraph = outcode + 'gexf'
     nx.write_gexf(prunedgraph,outgraph)
