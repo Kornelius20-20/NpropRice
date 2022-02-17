@@ -27,7 +27,7 @@ alpha = [0.1,0.5,1.0,2.0]
 outfile = "p"
 
 scale_limit = 100.0
-cutoff = 30.0
+cutoff = 50.0
 
 def weights_from_seeds(graph,seedlist, weight=100):
     p0 = []

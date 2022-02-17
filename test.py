@@ -1,18 +1,33 @@
 import networkx as nx
 import numpy as np
 
-# load weights
-weights = np.load("p.npy")
+# Get highest scoring nodes from the gexfs that aren't seeds
+graph = nx.read_gexf("testgraph.gexf")
 
 
-# Load graph
-graph = nx.read_gexf('graph.gexf')
+def get_non_seeds(graph,withscore=True):
+    # Function that
 
-weights *= 100.0/weights.max()
+    nodelist = []
+    weightlist = []
 
-i = 0
-for node in graph:
-    graph.nodes[node]['weight'] = weights[i]
-    i += 1
+    for node,attrs in graph.nodes(data=True):
+        try:
+            if graph.nodes[node]['isSeed']:
+                continue
+        except KeyError:
+            nodelist.append(graph.nodes[node]['label'])
+            weightlist.append(graph.nodes[node]['weight'])
+    return nodelist,weightlist
 
-nx.write_gexf(graph,'test.gexf')
+
+nodelist,weightlist = get_non_seeds(graph,True)
+
+# Create sorted arrays of nodes and weight and print them in descending order
+weightnp = np.array(weightlist)
+nodelist = [nodelist[i] for i in np.argsort(weightnp)]
+weightlist = [weightlist[i] for i in np.argsort(weightnp)]
+
+print(list(reversed(nodelist)))
+print(list(reversed(weightlist)))
+print(len(nodelist))
