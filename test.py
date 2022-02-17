@@ -4,6 +4,7 @@ import numpy as np
 # load weights
 weights = np.load("p.npy")
 
+
 # Load graph
 graph = nx.read_gexf('graph.gexf')
 
