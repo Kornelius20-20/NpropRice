@@ -16,12 +16,12 @@ regen = False
 # Load graph
 graph = nx.read_gexf('graph.gexf')
 # number of iterations to run to the random walk
-iter = 100
+iter = [50,100]
 # following parameters should be given in list form
 # weight to give to seeds
-weight = [10,100]
+weight = [100]#[10,100]
 # restart parameter
-alpha = [2,0.5]
+alpha = [0.5]#[2,0.5]
 
 # output numpy file name (without the .npy)
 outfile = "p"
@@ -76,6 +76,7 @@ def graph_with_weights(wgraph,alias_key,p,outcode):
         # add it's weight
         wgraph.nodes[node]['weight'] = p[i]
 
+        # ONLY KEEPS LABELS ABOVE CUTOFF
         # Get nodes to keep
         if p[i] > cutoff: sub_nodes.append(node)
 
@@ -83,11 +84,10 @@ def graph_with_weights(wgraph,alias_key,p,outcode):
 
     prunedgraph = wgraph.subgraph(sub_nodes)
 
-    print("subgraph made")
-
-
     outgraph = outcode + '.gexf'
     nx.write_gexf(prunedgraph,outgraph)
+
+    print(outgraph,end="\",\"")
 
 # Get adjacency matrix of graph
 A = nx.graphmatrix.adjacency_matrix(graph)
@@ -106,17 +106,17 @@ try:
     invD = np.load('tmp.npy')
 except FileNotFoundError:
     invD = np.linalg.inv(D)
-    with open('tmp.npy', 'wb') as file:
-        np.save(file, invD)
+    # with open('tmp.npy', 'wb') as file:
+    #     np.save(file, invD)
 
 alias_key = create_aliasdict(aliasfile)
 
-for i in range(len(alpha)):
+for i in range(len(iter)):
     # Do a random walk for some iterations and get the final weight vector for nodes
-    p = rwr(graph,seedlist,weight[i],alpha[i], A,invD,iter)
+    p = rwr(graph,seedlist,weight[0],alpha[0], A,invD,iter[i])
 
     # save output numpy array
-    outcode = f"{outfile} -{weight[i]}-{alpha[i]}"
+    outcode = f"{outfile}-{weight[0]}-{alpha[0]}-{iter[i]}"
     outnpy = outcode + ".npy"
     with open(outnpy,'wb') as file:
         np.save(file,p)

@@ -2,7 +2,7 @@ import networkx as nx
 import numpy as np
 
 # Get highest scoring nodes from the gexfs that aren't seeds
-graph = nx.read_gexf("testgraph.gexf")
+# graph = nx.read_gexf("testgraph.gexf")
 
 
 def get_non_seeds(graph,withscore=True):
@@ -20,14 +20,33 @@ def get_non_seeds(graph,withscore=True):
             weightlist.append(graph.nodes[node]['weight'])
     return nodelist,weightlist
 
+def descendingnodes(nodes,weights,returnboth=False):
+    # Create sorted arrays of nodes and weight and print them in descending order
+    weightnp = np.argsort(np.array(weights))
+    nodelist = [nodes[i] for i in weightnp]
 
-nodelist,weightlist = get_non_seeds(graph,True)
+    if returnboth:
+        weightlist = [weights[i] for i in weightnp]
+        return list(reversed(nodelist)),list(reversed(weightlist))
+    else: list(reversed(nodelist))
 
-# Create sorted arrays of nodes and weight and print them in descending order
-weightnp = np.array(weightlist)
-nodelist = [nodelist[i] for i in np.argsort(weightnp)]
-weightlist = [weightlist[i] for i in np.argsort(weightnp)]
+graphfiles = ["p-100-0.5-50.gexf","p-100-0.5-100.gexf"]
 
-print(list(reversed(nodelist)))
-print(list(reversed(weightlist)))
-print(len(nodelist))
+import pandas as pd
+dframe = pd.read_csv("txt/uniprot_original.csv")
+
+for graphfile in graphfiles:
+    graphfile = graphfile[:-5] + "seedsAndGO.gexf"
+    graph = nx.read_gexf(graphfile)
+
+    # Get nodes that aren't seeds and their weights
+    nodelist,weightlist = get_non_seeds(graph,True)
+
+    # sort them in ascending order
+    nodes,weights = descendingnodes(nodelist,weightlist,True)
+
+    entries = [dframe.loc[dframe['Entry'] == node] for node in nodes]
+    results = pd.concat(entries)
+    results.to_csv('results.csv')
+
+    break
