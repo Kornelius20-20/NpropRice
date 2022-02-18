@@ -19,9 +19,9 @@ graph = nx.read_gexf('graph.gexf')
 iter = 100
 # following parameters should be given in list form
 # weight to give to seeds
-weight = [50,100,250,500]
+weight = [10,100]
 # restart parameter
-alpha = [0.1,0.5,1.0,2.0]
+alpha = [2,0.5]
 
 # output numpy file name (without the .npy)
 outfile = "p"

@@ -12,27 +12,11 @@ from collections import Counter
 
 graphfile = "p -100-0.5.gexf"
 dframe = "txt/processed_uniprot.csv"
+outgraph = graphfile[:-5] + "seedsAndGO.gexf"
 
 graph = nx.read_gexf(graphfile)
 frame = pd.read_csv(dframe)
 
-
-
-def go_label_propagate_dumb(graph):
-    # Propagate GO term from node to neighbors
-    visited = []
-    for node, attrs in graph.nodes(True):
-        if 'GO' in attrs.keys():
-            label = attrs['GO']
-
-            for neighbor in graph.neighbors(node):
-                if neighbor in visited or 'GO' in graph.nodes[neighbor].keys():
-                    continue
-                else:
-                    graph.nodes[neighbor]['GO'] = label
-                    visited.append(neighbor)
-
-    return graph
 
 def assign_metadata(graph,infoframe,asterm=True):
     import re
@@ -112,8 +96,5 @@ def assign_best_go_id(graph):
 
 if __name__ == "__main__":
     graph = assign_metadata(graph,frame,asterm=False)
-    # graph = go_label_propagate_dumb(graph)
-    # for name,attrbs in graph.nodes(data=True):
-    #     print(attrbs['GO'])
     graph = assign_best_go_id(graph)
-    nx.write_gexf(graph,"testgraph.gexf")
+    nx.write_gexf(graph,outgraph)
