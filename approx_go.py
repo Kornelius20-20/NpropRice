@@ -10,12 +10,9 @@ import pandas as pd
 from collections import Counter
 
 
-graphfile = "p -100-0.5.gexf"
+graphfiles = ["p -100-0.5.gexf","p -10-2.gexf"]
 dframe = "txt/processed_uniprot.csv"
-outgraph = graphfile[:-5] + "seedsAndGO.gexf"
 
-graph = nx.read_gexf(graphfile)
-frame = pd.read_csv(dframe)
 
 
 def assign_metadata(graph,infoframe,asterm=True):
@@ -95,6 +92,11 @@ def assign_best_go_id(graph):
 
 
 if __name__ == "__main__":
-    graph = assign_metadata(graph,frame,asterm=False)
-    graph = assign_best_go_id(graph)
-    nx.write_gexf(graph,outgraph)
+    for graphfile in graphfiles:
+        outgraph = graphfile[:-5] + "seedsAndGO.gexf"
+        graph = nx.read_gexf(graphfile)
+        frame = pd.read_csv(dframe)
+
+        graph = assign_metadata(graph,frame,asterm=False)
+        graph = assign_best_go_id(graph)
+        nx.write_gexf(graph,outgraph)
