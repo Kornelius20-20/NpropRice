@@ -10,8 +10,8 @@ import pandas as pd
 from collections import Counter
 
 
-graphfiles = ["p-100-0.5-50.gexf","p-100-0.5-100.gexf"]
-dframe = "txt/processed_uniprot.csv"
+graphfiles = ["p-1000-0.5-100.gexf"]
+dframe = "txt/uniprot_original.csv"
 
 
 

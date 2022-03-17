@@ -9,25 +9,11 @@ import cupy as cp
 import os
 from stringInteractions2namedInteractions import create_aliasdict
 
-seedlist = r"txt/string_seeds.txt"
-aliasfile = "gz/39947.protein.aliases.v11.5.txt.gz"
-regen = False
-
-# Load graph
-graph = nx.read_gexf('graph.gexf')
-# number of iterations to run to the random walk
-iter = [50,100]
-# following parameters should be given in list form
-# weight to give to seeds
-weight = [100]#[10,100]
-# restart parameter
-alpha = [0.5]#[2,0.5]
-
 # output numpy file name (without the .npy)
 outfile = "p"
 
 scale_limit = 100.0
-cutoff = 50.0
+cutoff = 25.0
 
 def weights_from_seeds(graph,seedlist, weight=100):
     p0 = []
@@ -87,38 +73,43 @@ def graph_with_weights(wgraph,alias_key,p,outcode):
     outgraph = outcode + '.gexf'
     nx.write_gexf(prunedgraph,outgraph)
 
-    print(outgraph,end="\",\"")
+    return outgraph
 
-# Get adjacency matrix of graph
-A = nx.graphmatrix.adjacency_matrix(graph)
+def netprop(graph,seedlist,aliasfile,weight,alpha,iter,regen=False):
+    # Get adjacency matrix of graph
+    A = nx.graphmatrix.adjacency_matrix(graph)
 
-# Create degree matrix of graph
-D = np.eye(graph.number_of_nodes())
-i = 0
-for name,degree in graph.degree:
-    D[i,i] = degree
-    i += 1
+    # Create degree matrix of graph
+    D = np.eye(graph.number_of_nodes())
+    i = 0
+    for name,degree in graph.degree:
+        D[i,i] = degree
+        i += 1
 
-# Create the inverse degree matrix and save as a temp file. If a file already exists and regen = False
-# then just use that instead
-try:
-    if regen: raise FileNotFoundError # if regen is set to True, force creation of file
-    invD = np.load('tmp.npy')
-except FileNotFoundError:
-    invD = np.linalg.inv(D)
-    # with open('tmp.npy', 'wb') as file:
-    #     np.save(file, invD)
+    # Create the inverse degree matrix and save as a temp file. If a file already exists and regen = False
+    # then just use that instead
+    try:
+        if regen: raise FileNotFoundError # if regen is set to True, force creation of file
+        invD = np.load('tmp.npy')
+    except FileNotFoundError:
+        invD = np.linalg.inv(D)
+        # with open('tmp.npy', 'wb') as file:
+        #     np.save(file, invD)
 
-alias_key = create_aliasdict(aliasfile)
+    alias_key = create_aliasdict(aliasfile)
+    graphnames = []
+    for i in range(len(weight)):
+        for j in range(len(alpha)):
+            for k in range(len(iter)):
+                # Do a random walk for some iterations and get the final weight vector for nodes
+                p = rwr(graph,seedlist,weight[i],alpha[j], A,invD,iter[k])
 
-for i in range(len(iter)):
-    # Do a random walk for some iterations and get the final weight vector for nodes
-    p = rwr(graph,seedlist,weight[0],alpha[0], A,invD,iter[i])
+                # save output numpy array
+                outcode = f"outputs/{outfile}-{weight[i]}-{alpha[j]}-{iter[k]}"
+                outnpy = outcode + ".npy"
+                with open(outnpy,'wb') as file:
+                    np.save(file,p)
 
-    # save output numpy array
-    outcode = f"{outfile}-{weight[0]}-{alpha[0]}-{iter[i]}"
-    outnpy = outcode + ".npy"
-    with open(outnpy,'wb') as file:
-        np.save(file,p)
+                graphnames.append(graph_with_weights(graph,alias_key,p,outcode))
 
-    graph_with_weights(graph,alias_key,p,outcode)
+    return graphnames
