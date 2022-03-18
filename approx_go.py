@@ -8,14 +8,22 @@ given node is a present in the seed list etc.
 import networkx as nx
 import pandas as pd
 from collections import Counter
+import os
 
 
-graphfiles = ["p-100-0.5-50.gexf","p-100-0.5-100.gexf"]
-dframe = "txt/processed_uniprot.csv"
+graphfiles = ["p-1000-0.5-100.gexf"]
+dframe = "txt/uniprot_original.csv"
 
 
 
-def assign_metadata(graph,infoframe,asterm=True):
+def assign_metadata(graph,infoframe,asterm=True,seedlist=None):
+    if seedlist is None:
+        seedlist = []
+    else:
+        # Get seed proteins and assign to them an input weight of 100 and 0 to the rest
+        with open(os.path.join(seedlist), 'r') as file:
+            seedslist = set([line.rstrip() for line in file.readlines()])
+
     import re
 
     # Increase column width of pd output
@@ -46,7 +54,8 @@ def assign_metadata(graph,infoframe,asterm=True):
             # Add to the 'GO' attribute
             if len(goset) > 0:
                 graph.nodes[node]['GO'] = goset
-                graph.nodes[node]['isSeed'] = True
+                if node in seedslist:
+                    graph.nodes[node]['isSeed'] = True
 
                 # from pullingGOviaREST.py. Adds protein name in place of node label
                 name = row['Protein names'].to_string()
