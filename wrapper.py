@@ -18,9 +18,10 @@ weight = [100]
 # restart parameter
 alpha = [0.5,1.2,10,0.001]
 # Run network propagation with the given values
-# graphfiles = netprop.netprop(graph,seedlist,aliasfile,weight,alpha,iter,regen=True)
-# print(graphfiles)
-graphfiles = ['outputs/p-100-0.5-50.gexf', 'outputs/p-100-1.2-50.gexf', 'outputs/p-100-10-50.gexf', 'outputs/p-100-0.001-50.gexf']
+graphfiles = netprop.netprop(graph,seedlist,aliasfile,weight,alpha,iter,regen=True)
+print(graphfiles)
+# graphfiles = ['outputs/p-100-0.5-50.gexf', 'outputs/p-100-1.2-50.gexf', 'outputs/p-100-10-50.gexf',
+#               'outputs/p-100-0.001-50.gexf']
 
 # From approxgo.py
 # graphfiles = ["p-1000-0.5-100.gexf"]
@@ -36,7 +37,7 @@ for graphfile in graphfiles:
     graph = nx.read_gexf(graphfile)
 
 
-    graph = approx_go.assign_metadata(graph, frame, asterm=False,seedlist=seedlist)
+    graph = approx_go.assign_metadata(graph, frame, asterm=False)
     graph = approx_go.assign_best_go_id(graph)
 
 
