@@ -124,8 +124,27 @@ def graph_with_weights(wgraph,alias_key,p,outcode='outputgraph',scale=True,cutof
     return outgraph
 
 
-def netprop(graph,seedlist,aliasfile,weight,alpha,iter,scale=True,cutoff=cutoff,regen=True):
+def netprop(graph,seedlist,aliasfile,weight,alpha,iter,scale=True,cutoff=cutoff,regen=False):
+    """
+    Does network propagation in the given graph for the given seeds. The aliasfile is used to replace graph labels with
+    the label in the aliasfile. The method can run for multiple times based on the number of values in the weight, alpha
+    and iter lists (once for each combination). Optionally the weight values can be scaled and a cutoff value put for
+    weights. The regen bool determines whether or not to regenerate the numpy arrays corresponding to a matrix used in
+    the calculation. This can be set to false to allow matrices that do not change (ie degree matrix inverse, adjacency
+    matrix etc) to be reused. This significantly reduces processing time when multiple values are used for weight/alpha/
+    iter
 
+    :param graph: input graph
+    :param seedlist: path to seed file
+    :param aliasfile: path to gz file with STRING db aliases
+    :param weight: list of default weight values to give when initializing network propagation
+    :param alpha: list of alpha values (learning parameter) to give when initializing network propagation
+    :param iter: list of iteration numbers to give when initializing network propagation
+    :param scale: Whether to scale the value or not
+    :param cutoff: defines the optional cutoff below which nodes will not be added to the output graph
+    :param regen: regenerate the numpy arrays for some matrices on subsequent runs. Can usually be set to False
+    :return: list of strings that are paths to created graphs
+    """
 
     # Get adjacency matrix of graph
     A = nx.graphmatrix.adjacency_matrix(graph)

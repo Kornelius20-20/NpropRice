@@ -17,6 +17,17 @@ dframe = "txt/uniprot_original.csv"
 
 
 def assign_metadata(graph,infoframe,asterm=True,seedlist=None):
+    """
+    Take a graph and a dataframe of protein information from uniprot and get the GO terms of each node
+    in the graph. Add the GO terms of each node as an attribute to the node. If a seedlist is given,
+    mark the nodes present in a seedlist with the isSeed parameter
+
+    :param graph: input graph
+    :param infoframe: dataframe of protein data from uniprot
+    :param asterm: if True then returns the GO term as its numerical term. Else enters the description
+    :param seedlist: list of nodes to mark as seeds
+    :return: graph with added metadata
+    """
     if seedlist is None:
         seedlist = []
     else:
@@ -68,6 +79,13 @@ def assign_metadata(graph,infoframe,asterm=True,seedlist=None):
     return graph
 
 def assign_best_go_id(graph):
+    """
+    take a graph with the GO ID's assigned to each node and using the neighborhood, determine which ID is most
+    appropriate for each node. This is done via majority voting
+
+    :param graph: input graph with multiple values for GO attribute in a node
+    :return: output graph with only one GO value per node
+    """
     # Iterate over all nodes, getting nodes and their attributes
     for node, attrs in graph.nodes(True):
         # For nodes with GO terms in attributes
