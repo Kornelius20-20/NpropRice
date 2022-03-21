@@ -13,7 +13,7 @@ proteins
 
 from JCNUParser import aliasesFromFile
 
-aliasfile = r"I:\Thesis\4530.protein.aliases.v11.0.txt.gz"
+aliasfile = r"gz/4530.protein.aliases.v11.0.txt.gz"
 
 querylist = r"JCNUproteins.txt"
 source = 'Ensembl_UniProt'
