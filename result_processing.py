@@ -48,6 +48,7 @@ def get_best_csv_name(candset,outputdir):
 
 
 if __name__ == "__main__":
+    outputdir = "outputs/results"
     outputprots = concat_outputs(outputdir)
     candset = set(outputprots['Entry'].tolist())
     print(get_best_csv_name(candset,outputdir))

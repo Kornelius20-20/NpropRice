@@ -40,12 +40,12 @@ frame = pd.read_csv(dframe2,delimiter='\t')
 # Load graph
 maingraph = nx.read_gexf('graph.gexf')
 # number of iterations to run to the random walk
-iter = [5,10,20,35,50]
+iter = [i for i in range(20,51,5)]
 # following parameters should be given in list form
 # weight to give to seeds
-weight = [10,100,250]
+weight = [10]
 # restart parameter
-alpha = [0.001,0.5,1.2,10]
+alpha = [0.001,0.5]
 
 for i in range(len(weight)):
     for j in range(len(alpha)):
@@ -76,3 +76,10 @@ for i in range(len(weight)):
                 results.to_csv(f'outputs/results/{graphfile[15:]}.csv')
 
             nx.write_gexf(graph, outgraph)
+
+import result_processing as rp
+
+outputdir = "outputs/results"
+outputprots = rp.concat_outputs(outputdir)
+candset = set(outputprots['Entry'].tolist())
+print(rp.get_best_csv_name(candset,outputdir))

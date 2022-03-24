@@ -149,19 +149,18 @@ def netprop(graph,seedlist,aliasfile,weight,alpha,iter,scale=True,cutoff=cutoff,
     # Get adjacency matrix of graph
     A = nx.graphmatrix.adjacency_matrix(graph)
 
-    # Create degree matrix of graph
-    D = np.eye(graph.number_of_nodes())
-    i = 0
-    for name,degree in graph.degree:
-        D[i,i] = degree
-        i += 1
-
     # Create the inverse degree matrix and save as a temp file. If a file already exists and regen = False
     # then just use that instead
     try:
         if regen: raise FileNotFoundError # if regen is set to True, force creation of file
         invD = np.load('tmp.npy')
     except FileNotFoundError:
+        # Create degree matrix of graph
+        D = np.eye(graph.number_of_nodes())
+        i = 0
+        for name, degree in graph.degree:
+            D[i, i] = degree
+            i += 1
         invD = np.linalg.inv(D)
         # with open('tmp.npy', 'wb') as file:
         #     np.save(file, invD)
