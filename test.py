@@ -33,7 +33,18 @@ def get_best_csv_name(candset,outputdir):
         keys.append(key)
         vals.append(value)
 
-    return (keys[vals.index(max(vals))],max(vals))
+    bestscore = max(vals)
+    outfiles = []
+    while True:
+        try:
+            targetindex = vals.index(bestscore)
+            outfiles.append(keys[targetindex])
+            vals.pop(targetindex)
+            keys.pop(targetindex)
+        except ValueError:
+            break
+
+    return outfiles
 
 
 if __name__ == "__main__":
