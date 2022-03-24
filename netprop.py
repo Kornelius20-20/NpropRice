@@ -168,22 +168,17 @@ def netprop(graph,seedlist,aliasfile,weight,alpha,iter,scale=True,cutoff=cutoff,
 
     alias_key = create_aliasdict(aliasfile)
 
-    createdgraphs = []
-    for i in range(len(weight)):
-        for j in range(len(alpha)):
-            for k in range(len(iter)):
-                # Input weights for network
-                p0 = weights_from_seeds(graph, seedlist, weight[i])
-                # Do a random walk for some iterations and get the final weight vector for nodes
-                p = _rwr(p0, alpha[j], A, invD, iter[k])
+    # Input weights for network
+    p0 = weights_from_seeds(graph, seedlist, weight)
+    # Do a random walk for some iterations and get the final weight vector for nodes
+    p = _rwr(p0, alpha, A, invD, iter)
 
-                # save output numpy array
-                outcode = f"{outfile}-{weight[i]}-{alpha[j]}-{iter[k]}"
-                outnpy = outcode + ".npy"
-                with open(outnpy,'wb') as file:
-                    np.save(file,p)
+    # save output numpy array
+    outcode = f"{outfile}-{weight}-{alpha}-{iter}"
+    outnpy = outcode + ".npy"
+    with open(outnpy,'wb') as file:
+        np.save(file,p)
 
-                # Run the graph_with_weights and return the output filename. Append it to the list
-                createdgraphs.append( graph_with_weights(graph,alias_key,p,outcode,scale,cutoff) )
+    graphname = graph_with_weights(graph,alias_key,p,outcode,scale,cutoff)
 
-    return createdgraphs
+    return graphname
