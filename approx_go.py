@@ -29,7 +29,7 @@ def assign_metadata(graph,infoframe,asterm=True,seedlist=None):
     :return: graph with added metadata
     """
     if seedlist is None:
-        seedlist = []
+        seedslist = []
     else:
         # Get seed proteins and assign to them an input weight of 100 and 0 to the rest
         with open(os.path.join(seedlist), 'r') as file:
