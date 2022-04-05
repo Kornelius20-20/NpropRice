@@ -74,7 +74,7 @@ def assign_metadata(graph,infoframe,asterm=True,seedlist=None):
                 result = re.findall(".*?\(", name)
 
                 # If there's a result, replace label with first result
-                if len(result) > 0: graph.nodes[node]['label'] = result[0][1:-1]
+                if len(result) > 0: graph.nodes[node]['label'] = result[0][5:-1]
 
     return graph
 

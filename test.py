@@ -35,7 +35,7 @@ def descendingdictkeys(dic,desc=True):
 
 
 dframe2 = "txt/uniprot_original.tsv"
-graph = nx.read_gexf('outputs/graphs/p-10-0.1-50seedsAndGO.gexf')
+graph = nx.read_gexf('outputs/graphs/p-10-0.1-50.gexf')
 frame = pd.read_csv(dframe2,delimiter='\t')
 
 graph = approx_go.assign_metadata(graph, frame, asterm=False)
