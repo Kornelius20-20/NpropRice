@@ -43,6 +43,20 @@ graph = approx_go.assign_metadata(graph, frame, asterm=False)
 results = greedy_modularity_communities(graph)
 
 for i in range(len(results)):
+
+       # for each node add the sum of the degrees of neighbor nodes
+       for node in results[i]:
+              neighbors = nx.neighbors(graph,node)
+              degreesum = 0
+              for nb in neighbors:
+                     degreesum += nx.degree(graph,nb)
+              graph.nodes[node]['neighbordegrees'] = degreesum
+
+
+       # add cluster label
+       for node in results[i]:
+              graph.nodes[node]['cluster'] = i + 1
+
        gos_in_clust = {}
 
        # For nodes with GO terms, score their terms in the cluster GO list
@@ -70,7 +84,7 @@ for i in range(len(results)):
                             graph.nodes[node][goterm] = orderedgos[i]
 
               except KeyError:
-                     continue
+                     None
 
 
 nx.write_gexf(graph,'outputs/graphs/p-10-0.1-50seedsAndGO-w-community.gexf')
