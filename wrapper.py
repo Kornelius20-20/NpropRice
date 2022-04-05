@@ -23,6 +23,17 @@ aliasfile = "gz/39947.protein.aliases.v11.5.txt.gz"
 dframe2 = "txt/uniprot_original.tsv"
 regen = False
 
+# Load graph
+maingraph = nx.read_gexf('graph.gexf')
+# number of iterations to run to the random walk
+iter = [50]
+# following parameters should be given in list form
+# weight to give to seeds
+weight = [10]
+# restart parameter
+alpha = [0.1]
+
+cutoff = 25.0
 
 # Create directories to hold output files
 if not os.path.exists("/outputs"):
@@ -34,24 +45,15 @@ if not os.path.exists("outputs/results"):
 
 
 
-dframe = pd.read_csv("txt/uniprot_original.tsv",delimiter='\t')
+dframe = pd.read_csv(dframe2,delimiter='\t')
 frame = pd.read_csv(dframe2,delimiter='\t')
 
-# Load graph
-maingraph = nx.read_gexf('graph.gexf')
-# number of iterations to run to the random walk
-iter = [i for i in range(20,51,5)]
-# following parameters should be given in list form
-# weight to give to seeds
-weight = [10]
-# restart parameter
-alpha = [0.001,0.5]
 
 for i in range(len(weight)):
     for j in range(len(alpha)):
         for k in range(len(iter)):
             # Run network propagation with the given values
-            graphfile = netprop.netprop(maingraph,seedlist,aliasfile,weight[i],alpha[j],iter[k],regen=regen)
+            graphfile = netprop.netprop(maingraph,seedlist,aliasfile,weight[i],alpha[j],iter[k],regen=regen,cutoff=cutoff)
 
             outgraph = graphfile[:-5] + "seedsAndGO.gexf"
             graph = nx.read_gexf(graphfile)

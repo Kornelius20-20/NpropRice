@@ -71,10 +71,10 @@ def assign_metadata(graph,infoframe,asterm=True,seedlist=None):
                 # from pullingGOviaREST.py. Adds protein name in place of node label
                 name = row['Protein names'].to_string()
 
-                result = re.findall("\(.*?\)", name)
+                result = re.findall(".*?\(", name)
 
-                # If there's a result, replace label with last result
-                if len(result) > 0: graph.nodes[node]['label'] = result[-1][1:-1]
+                # If there's a result, replace label with first result
+                if len(result) > 0: graph.nodes[node]['label'] = result[0][1:-1]
 
     return graph
 
