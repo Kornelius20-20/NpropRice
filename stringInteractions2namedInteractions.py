@@ -48,45 +48,36 @@ def create_aliasdict(aliasfile):
 
     return alias_key
 
+def stringidconvert(proteinlist,aliasdict,source='Uniprot'):
 
-def id_translate(source_file, output_file, alias_key, preferred_source,header=False):
-    """
-    A method that takes in a source file of interactions and converts it into an output tsv containing the protein
-    interactions with names as specified by preferred_source. If the preferred source does not exist then Uniprot is
-    used as a fallback source
+    outputproteins = []
+    for prot in proteinlist:
+        aliases = aliasdict.get(prot,None)
 
-    :param source_file:
-    :param output_file:
-    :param alias_key:
-    :return:
-    """
-    backup_source = "Uniprot"
-    out = open(os.path.join(output_file), 'w')
+        if aliases is not None:
+            outputproteins.append(aliases[source])
+        else:
+            outputproteins.append('')
 
-    with open(os.path.join(source_file), 'r') as file:
-        line = file.readline()
-        if header: line = file.readline()
+    return outputproteins
 
-        while line:
-            items = line.rstrip().split('\t')
-            # For each STRING_ID, get the protein name from the preferred source in the alias file
-            # If that is missing then go for the backup source
-            left_prot = alias_key[items[0]].get(preferred_source, alias_key[items[0]][backup_source])
-            right_prot = alias_key[items[1]].get(preferred_source, alias_key[items[1]][backup_source])
-            out.writelines('\t'.join([left_prot, right_prot, items[-1], '\n']))
-            line = file.readline()
+prots = "SUS2_ORYSJ, Q0DTU6_ORYSJ, Q6Z548_ORYSJ, Q5JNJ1_ORYSJ, Q6ZCH3_ORYSJ, Q6ERD9_ORYSJ, Q9AX07_ORYSJ, Q75II7_ORYSJ"
 
-    out.close()
-
-def change_nodes_of_gexf(graphfile,alias_key, preferred_source,backup_source= "Uniprot"):
-    graph = nx.read_gexf(graphfile)
-
-    for node in graph.nodes:
-        graph.nodes[node]['label'] = alias_key[node].get(preferred_source, alias_key[node][backup_source])
-
-    nx.write_gexf(graph,'test2.gexf')
 
 if __name__ == "__main__":
-    alias_key = create_aliasdict(aliasfile)
-    # id_translate(source_file, output_file, alias_key, preferred_source,header=True)
-    change_nodes_of_gexf(graphfile,alias_key,'Uniprot')
+    from cluster_drought_module_greedy import descendingdictkeys
+
+    aliasdict = create_aliasdict(aliasfile)
+
+    sources = {}
+    numprots = len(aliasdict.keys())
+    print(f"numprots: {numprots}")
+    for item in aliasdict.values():
+        for sc in item.keys():
+            try:
+                sources[sc] += 1
+            except KeyError:
+                sources[sc] = 1
+
+    keys = descendingdictkeys(sources)
+    print(keys)

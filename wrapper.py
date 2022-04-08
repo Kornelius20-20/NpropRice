@@ -20,8 +20,9 @@ from get_high_scores import get_non_seeds,descendingnodes
 # From netprop
 seedlist = r"txt/string_seeds.txt"
 aliasfile = "gz/39947.protein.aliases.v11.5.txt.gz"
-dframe2 = "txt/uniprot_original.tsv"
-regen = False
+dframe2 = "txt/uniprot_original.csv"
+delim = ','
+regen = True
 
 # Load graph
 maingraph = nx.read_gexf('graph.gexf')
@@ -45,9 +46,8 @@ if not os.path.exists("outputs/results"):
 
 
 
-dframe = pd.read_csv(dframe2,delimiter='\t')
-frame = pd.read_csv(dframe2,delimiter='\t')
-
+dframe = pd.read_csv(dframe2,delimiter=delim)
+frame = pd.read_csv(dframe2,delimiter=delim)
 
 for i in range(len(weight)):
     for j in range(len(alpha)):

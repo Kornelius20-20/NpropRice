@@ -34,9 +34,9 @@ def descendingdictkeys(dic,desc=True):
        else: return output.reverse()
 
 
-dframe2 = "txt/uniprot_original.tsv"
+dframe2 = "txt/uniprot_original.csv"
 graph = nx.read_gexf('outputs/graphs/p-10-0.1-50.gexf')
-frame = pd.read_csv(dframe2,delimiter='\t')
+frame = pd.read_csv(dframe2,delimiter=',')
 
 graph = approx_go.assign_metadata(graph, frame, asterm=False)
 
@@ -79,12 +79,25 @@ for i in range(len(results)):
        for node in results[i]:
               try:
                      del graph.nodes[node]['GO']
-                     for i in range(0,5):
+                     endlim = len(orderedgos) if len(orderedgos) < 3 else 3
+                     for i in range(0,endlim):
                             goterm = f'GO{i+1}'
                             graph.nodes[node][goterm] = orderedgos[i]
 
               except KeyError:
                      None
+
+from stringInteractions2namedInteractions import stringidconvert,create_aliasdict
+aliasfile = "gz/39947.protein.aliases.v11.5.txt.gz"
+aliasdict = create_aliasdict(aliasfile)
+
+with open('clusterfile_BLUNIID.txt','w') as file:
+       for i in range(len(results)):
+              proteins = stringidconvert(results[i],aliasdict,'BLAST_UniProt_ID')
+              for node in proteins:
+                     file.write(f'{node}\n')
+              file.write('\n')
+
 
 
 nx.write_gexf(graph,'outputs/graphs/p-10-0.1-50seedsAndGO-w-community.gexf')
