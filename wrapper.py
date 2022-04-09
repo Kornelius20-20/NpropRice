@@ -34,7 +34,7 @@ weight = [10]
 # restart parameter
 alpha = [0.1]
 
-cutoff = 25.0
+cutoff = 40.0
 
 # Create directories to hold output files
 if not os.path.exists("/outputs"):

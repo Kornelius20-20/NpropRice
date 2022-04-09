@@ -58,6 +58,7 @@ def greedyclustergraph(graph, frame, aliasfile,id='BLAST_UniProt_ID',asterm=Fals
 dframe2 = "txt/uniprot_original.csv"
 # graph = nx.read_gexf('outputs/graphs/p-w=10-a=0.1-i=50-c=50.0.gexf')
 aliasfile = "gz/39947.protein.aliases.v11.5.txt.gz"
+outputdir = "outputs/results"
 frame = pd.read_csv(dframe2,delimiter=',')
 
 for _,_,files in os.walk('outputs/graphs'):
@@ -67,9 +68,19 @@ for _,_,files in os.walk('outputs/graphs'):
 
                      proteins = greedyclustergraph(graph,frame,aliasfile)
 
-                     with open(f"outputs/results/clusterfile{file}.txt",'w') as file:
-                            for clust in proteins:
-                                   for item in clust:
-                                          file.write(item+'\n')
-                                   file.write('\n')
+                     titles = [f"cluster{i + 1}" for i in range(len(proteins))]
+                     longestlist = max([len(item) for item in proteins])
 
+                     with open(os.path.join(outputdir, f'clusterfile{file}.txt'), 'w') as multlst:
+                            multlst.write('\t'.join(titles))
+                            multlst.write('\n')
+
+                            for i in range(longestlist):
+                                   line = ''
+                                   for clust in proteins:
+                                          try:
+                                                 line += clust[i] + '\t'
+                                          except IndexError:
+                                                 line += '\t'
+                                   line += '\n'
+                                   multlst.writelines(line)
