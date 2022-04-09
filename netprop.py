@@ -173,7 +173,7 @@ def netprop(graph,seedlist,aliasfile,weight,alpha,iter,scale=True,cutoff=cutoff,
     p = _rwr(p0, alpha, A, invD, iter)
 
     # save output numpy array
-    outcode = f"{outfile}-{weight}-{alpha}-{iter}"
+    outcode = f"{outfile}-w={weight}-a={alpha}-i={iter}-c={cutoff}"
     outnpy = outcode + ".npy"
     with open(outnpy,'wb') as file:
         np.save(file,p)

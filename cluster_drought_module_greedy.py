@@ -1,3 +1,4 @@
+import os
 import networkx as nx
 from networkx.algorithms.community import greedy_modularity_communities
 import approx_go
@@ -33,71 +34,42 @@ def descendingdictkeys(dic,desc=True):
               return output
        else: return output.reverse()
 
+def greedyclustergraph(graph, frame, aliasfile,id='BLAST_UniProt_ID',asterm=False):
+
+       graph = approx_go.assign_metadata(graph, frame, asterm=asterm)
+
+       results = greedy_modularity_communities(graph)
+
+       for i in range(len(results)):
+              # add cluster label
+              for node in results[i]:
+                     graph.nodes[node]['cluster'] = i + 1
+
+
+       from stringInteractions2namedInteractions import stringidconvert,create_aliasdict
+
+       aliasdict = create_aliasdict(aliasfile)
+
+       proteins = [stringidconvert(results[i],aliasdict,id) for i in range(len(results))]
+
+       return proteins
+
 
 dframe2 = "txt/uniprot_original.csv"
-graph = nx.read_gexf('outputs/graphs/p-10-0.1-50.gexf')
+# graph = nx.read_gexf('outputs/graphs/p-w=10-a=0.1-i=50-c=50.0.gexf')
+aliasfile = "gz/39947.protein.aliases.v11.5.txt.gz"
 frame = pd.read_csv(dframe2,delimiter=',')
 
-graph = approx_go.assign_metadata(graph, frame, asterm=False)
+for _,_,files in os.walk('outputs/graphs'):
+       for file in files:
+              if "seedsAndGO" not in file:
+                     graph = nx.read_gexf(os.path.join('outputs/graphs',file))
 
-results = greedy_modularity_communities(graph)
+                     proteins = greedyclustergraph(graph,frame,aliasfile)
 
-for i in range(len(results)):
+                     with open(f"outputs/results/clusterfile{file}.txt",'w') as file:
+                            for clust in proteins:
+                                   for item in clust:
+                                          file.write(item+'\n')
+                                   file.write('\n')
 
-       # for each node add the sum of the degrees of neighbor nodes
-       for node in results[i]:
-              neighbors = nx.neighbors(graph,node)
-              degreesum = 0
-              for nb in neighbors:
-                     degreesum += nx.degree(graph,nb)
-              graph.nodes[node]['neighbordegrees'] = degreesum
-
-
-       # add cluster label
-       for node in results[i]:
-              graph.nodes[node]['cluster'] = i + 1
-
-       gos_in_clust = {}
-
-       # For nodes with GO terms, score their terms in the cluster GO list
-       for node in results[i]:
-              try:
-                     assignedgo = graph.nodes[node]['GO']
-                     if type(assignedgo) is str:
-                            score = gos_in_clust.get(assignedgo,0)
-                            gos_in_clust[assignedgo] = score + 1
-                     else:
-                            for go in assignedgo:
-                                   score = gos_in_clust.get(go, 0)
-                                   gos_in_clust[go] = score + 1
-
-              except KeyError:
-                     continue
-
-       orderedgos = descendingdictkeys(gos_in_clust)
-
-       for node in results[i]:
-              try:
-                     del graph.nodes[node]['GO']
-                     endlim = len(orderedgos) if len(orderedgos) < 3 else 3
-                     for i in range(0,endlim):
-                            goterm = f'GO{i+1}'
-                            graph.nodes[node][goterm] = orderedgos[i]
-
-              except KeyError:
-                     None
-
-from stringInteractions2namedInteractions import stringidconvert,create_aliasdict
-aliasfile = "gz/39947.protein.aliases.v11.5.txt.gz"
-aliasdict = create_aliasdict(aliasfile)
-
-with open('clusterfile_BLUNIID.txt','w') as file:
-       for i in range(len(results)):
-              proteins = stringidconvert(results[i],aliasdict,'BLAST_UniProt_ID')
-              for node in proteins:
-                     file.write(f'{node}\n')
-              file.write('\n')
-
-
-
-nx.write_gexf(graph,'outputs/graphs/p-10-0.1-50seedsAndGO-w-community.gexf')

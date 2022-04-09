@@ -62,8 +62,6 @@ for i in range(len(weight)):
             graph = approx_go.assign_metadata(graph, frame, asterm=False,seedlist=seedlist)
             graph = approx_go.assign_best_go_id(graph)
 
-            print(graphfile)
-
             # Get nodes that aren't seeds and their weights
             nodelist, weightlist = get_non_seeds(graph, True)
 
@@ -75,7 +73,7 @@ for i in range(len(weight)):
                 results = pd.concat(entries)
                 weights = [weights[nodes.index(i)] for i in results['Entry']]
                 results['weights'] = weights
-                results.to_csv(f'outputs/results/{graphfile[15:]}.csv')
+                results.to_csv(f'outputs/results/{graphfile[15:-5]}.csv')
 
             nx.write_gexf(graph, outgraph)
 
