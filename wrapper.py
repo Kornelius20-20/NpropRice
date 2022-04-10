@@ -27,14 +27,14 @@ regen = True
 # Load graph
 maingraph = nx.read_gexf('graph.gexf')
 # number of iterations to run to the random walk
-iter = [50]
+iter = [50,75]
 # following parameters should be given in list form
 # weight to give to seeds
 weight = [10]
 # restart parameter
-alpha = [0.1]
+alpha = [0.1,0.5]
 
-cutoff = 40.0
+cutoff = 35.0
 
 # Create directories to hold output files
 if not os.path.exists("/outputs"):

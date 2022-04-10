@@ -71,7 +71,7 @@ for _,_,files in os.walk('outputs/graphs'):
                      titles = [f"cluster{i + 1}" for i in range(len(proteins))]
                      longestlist = max([len(item) for item in proteins])
 
-                     with open(os.path.join(outputdir, f'clusterfile{file}.txt'), 'w') as multlst:
+                     with open(os.path.join(outputdir, f'clusterfile{file[:-5]}.tsv'), 'w') as multlst:
                             multlst.write('\t'.join(titles))
                             multlst.write('\n')
 
