@@ -61,8 +61,30 @@ def stringidconvert(proteinlist,aliasdict,source='Uniprot'):
 
     return outputproteins
 
-prots = "SUS2_ORYSJ, Q0DTU6_ORYSJ, Q6Z548_ORYSJ, Q5JNJ1_ORYSJ, Q6ZCH3_ORYSJ, Q6ERD9_ORYSJ, Q9AX07_ORYSJ, Q75II7_ORYSJ"
+def id2stringdict(aliasfile,source='BLAST_UniProt_ID'):
+    """
+    Function that will take in an aliasfile and convert it into an aliasdict dictionary. It will then create a new
+    dictionary where the key is the name of a protein in the given source format andt he value is the STRING ID of the
+    protein
 
+    Parameters
+    ----------
+    aliasfile : the path to a file containing protein aliases
+    source: the preferred source to have as a key. Default is BLAST_UniProt_ID
+
+    Returns
+    -------
+    dict: dictionary of keys as source names and values as STRING IDs
+    """
+
+    alias_key = create_aliasdict(aliasfile)
+
+    newdict = {}
+    for key,item in alias_key.items():
+        newkey = item[source]
+        newdict[newkey] = key
+
+    return newdict
 
 if __name__ == "__main__":
     from cluster_drought_module_greedy import descendingdictkeys

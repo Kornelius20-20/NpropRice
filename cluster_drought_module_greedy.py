@@ -36,7 +36,7 @@ def descendingdictkeys(dic,desc=True):
 
 def greedyclustergraph(graph, frame, aliasfile,id='BLAST_UniProt_ID',asterm=False):
 
-       graph = approx_go.assign_metadata(graph, frame, asterm=asterm)
+       # graph = approx_go.assign_metadata(graph, frame, asterm=asterm)
 
        results = greedy_modularity_communities(graph)
 
@@ -84,3 +84,5 @@ for _,_,files in os.walk('outputs/graphs'):
                                                  line += '\t'
                                    line += '\n'
                                    multlst.writelines(line)
+
+                     nx.write_gexf(graph,os.path.join('outputs/graphs',file))
