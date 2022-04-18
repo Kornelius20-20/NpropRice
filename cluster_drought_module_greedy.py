@@ -55,10 +55,9 @@ def greedyclustergraph(graph, frame, aliasfile,id='BLAST_UniProt_ID',asterm=Fals
        return proteins
 
 
-dframe2 = "txt/uniprot_original.csv"
-# graph = nx.read_gexf('outputs/graphs/p-w=10-a=0.1-i=50-c=50.0.gexf')
 aliasfile = "gz/39947.protein.aliases.v11.5.txt.gz"
 outputdir = "outputs/results"
+dframe2 = "txt/uniprot_original.csv"
 frame = pd.read_csv(dframe2,delimiter=',')
 
 for _,_,files in os.walk('outputs/graphs'):
