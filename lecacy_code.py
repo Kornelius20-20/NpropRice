@@ -76,7 +76,23 @@ def id_translate(source_file, output_file, alias_key, preferred_source,header=Fa
 
     out.close()
 
-
+# code that formats the clusters to be in a tsv format with a number of columns equal to the
+                     # longest cluster
+                     # longestlist = max([len(item) for item in proteins])
+                     #
+                     # with open(os.path.join(outputdir, f'clusterfile{file[:-5]}.tsv'), 'w') as multlst:
+                     #        multlst.write('\t'.join(titles))
+                     #        multlst.write('\n')
+                     #
+                     #        for i in range(longestlist):
+                     #               line = ''
+                     #               for clust in proteins:
+                     #                      try:
+                     #                             line += clust[i] + '\t'
+                     #                      except IndexError:
+                     #                             line += '\t'
+                     #               line += '\n'
+                     #               multlst.writelines(line)
 
 if __name__ == "__main__":
     goterm = "GO:0009819" # drought response

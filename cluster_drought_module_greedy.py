@@ -1,7 +1,5 @@
 import os
 import networkx as nx
-from networkx.algorithms.community import greedy_modularity_communities
-import approx_go
 import pandas as pd
 
 def descendingdictkeys(dic,desc=True):
@@ -34,25 +32,62 @@ def descendingdictkeys(dic,desc=True):
               return output
        else: return output.reverse()
 
-def greedyclustergraph(graph, frame, aliasfile,id='BLAST_UniProt_ID',asterm=False):
 
-       # graph = approx_go.assign_metadata(graph, frame, asterm=asterm)
+# calculating partition coefficient
+def partition_coefficient(graph, cluster_attr='cluster'):
+       # Get total number of clusters
+       totclust = max(nx.get_node_attributes(graph, cluster_attr).values())
 
-       results = greedy_modularity_communities(graph)
+       # for each node
+       for node in graph.nodes:
+              module_part = 0
+              # For each module
+              for i in range(1, totclust + 1):
+                     # Get its neightbors and find out how much of them are belong to the current cluster of the iteration
+                     nb_counter = 0
+                     for neighbor in nx.neighbors(graph, node):
+                            if graph.nodes[neighbor][cluster_attr] == i:
+                                   nb_counter += 1
 
-       for i in range(len(results)):
-              # add cluster label
-              for node in results[i]:
-                     graph.nodes[node]['cluster'] = i + 1
+                     # sum of partitions of each module
+                     try:
+                            module_part += (nb_counter / nx.degree(graph, node)) ** 2
+                     except ZeroDivisionError:
+                            module_part = module_part
+              part_coef = 1 - module_part
+
+              graph.nodes[node][f'{cluster_attr}_PC'] = part_coef
+
+       return graph
 
 
-       from stringInteractions2namedInteractions import stringidconvert,create_aliasdict
+def get_best_scoring_nodes(graph, attr, cutoff):
+       value_attrs = nx.get_node_attributes(graph, attr)
 
-       aliasdict = create_aliasdict(aliasfile)
+       # resccle the attribute values
+       maxval = max(value_attrs.values())
+       minval = min(value_attrs.values())
+       for key in value_attrs.keys():
+              value_attrs[key] = (value_attrs[key] - minval) / (maxval - minval) * 100
 
-       proteins = [stringidconvert(results[i],aliasdict,id) for i in range(len(results))]
+       # Only get values larger than the cutoff
+       outputnodes = []
+       for key, value in value_attrs.items():
+              if value >= cutoff: outputnodes.append([value, key])
 
-       return proteins
+       outputnodes.sort(reverse=True)
+
+       return [i[1] for i in outputnodes]
+
+
+def add_clustering_as_attr(graph, clusters, attrname):
+       clust = 1
+       for cluster in clusters:
+              for node in cluster:
+                     graph.nodes[node][attrname] = clust
+              clust += 1
+
+       return graph
 
 
 aliasfile = "gz/39947.protein.aliases.v11.5.txt.gz"
@@ -65,23 +100,19 @@ for _,_,files in os.walk('outputs/graphs'):
               if "seedsAndGO" not in file:
                      graph = nx.read_gexf(os.path.join('outputs/graphs',file))
 
-                     proteins = greedyclustergraph(graph,frame,aliasfile)
+                     # Do greedy clustering
+                     attr = 'greedy_clusters'
+                     proteins = nx.community.greedy_modularity_communities(graph)
 
-                     titles = [f"cluster{i + 1}" for i in range(len(proteins))]
-                     longestlist = max([len(item) for item in proteins])
+                     graph = add_clustering_as_attr(graph,proteins,attr)
+                     graph = partition_coefficient(graph,attr)
 
-                     with open(os.path.join(outputdir, f'clusterfile{file[:-5]}.tsv'), 'w') as multlst:
-                            multlst.write('\t'.join(titles))
-                            multlst.write('\n')
+                     # Do label propagation
+                     attr = 'label_propagation'
+                     proteins = nx.community.label_propagation_communities(graph)
 
-                            for i in range(longestlist):
-                                   line = ''
-                                   for clust in proteins:
-                                          try:
-                                                 line += clust[i] + '\t'
-                                          except IndexError:
-                                                 line += '\t'
-                                   line += '\n'
-                                   multlst.writelines(line)
+                     graph = add_clustering_as_attr(graph, proteins, attr)
+                     graph = partition_coefficient(graph, attr)
 
-                     nx.write_gexf(graph,os.path.join('outputs/graphs',file))
+
+              nx.write_gexf(graph,os.path.join('outputs/graphs',file))

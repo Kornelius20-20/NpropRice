@@ -48,7 +48,7 @@ def create_aliasdict(aliasfile):
 
     return alias_key
 
-def stringidconvert(proteinlist,aliasdict,source='Uniprot'):
+def stringidconvert(proteinlist,aliasdict=create_aliasdict(aliasfile),source='BLAST_UniProt_ID'):
 
     outputproteins = []
     for prot in proteinlist:
