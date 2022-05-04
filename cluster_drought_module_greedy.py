@@ -61,7 +61,7 @@ def partition_coefficient(graph, cluster_attr='cluster'):
        return graph
 
 
-def get_best_scoring_nodes(graph, attr, cutoff):
+def get_best_scoring_nodes(graph, attr, cutoff=50):
        value_attrs = nx.get_node_attributes(graph, attr)
 
        # resccle the attribute values
@@ -114,5 +114,11 @@ for _,_,files in os.walk('outputs/graphs'):
                      graph = add_clustering_as_attr(graph, proteins, attr)
                      graph = partition_coefficient(graph, attr)
 
+                     # Do louvain community detection
+                     attr = 'louvain'
+                     proteins = nx.community.louvain_communities(graph)
+
+                     graph = add_clustering_as_attr(graph, proteins, attr)
+                     graph = partition_coefficient(graph, attr)
 
               nx.write_gexf(graph,os.path.join('outputs/graphs',file))
