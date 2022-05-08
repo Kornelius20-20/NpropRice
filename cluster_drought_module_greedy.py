@@ -2,7 +2,7 @@ import os
 import networkx as nx
 import pandas as pd
 
-def descendingdictkeys(dic,desc=True):
+def descendingdictkeys(dic, desc=True, withvalues=False):
        """
        Method that takes in a dictionary with keys and values that are integers and returns the keys in descending order
        of the values
@@ -24,7 +24,10 @@ def descendingdictkeys(dic,desc=True):
        output = []
        while len(values) > 0:
               bestind = values.index(max(values))
-              output.append(keys[bestind])
+              if withvalues:
+                     output.append([values[bestind],keys[bestind]])
+              else:
+                     output.append(keys[bestind])
               keys.pop(bestind)
               values.pop(bestind)
 
@@ -64,7 +67,7 @@ def partition_coefficient(graph, cluster_attr='cluster'):
 def get_best_scoring_nodes(graph, attr, cutoff=50):
        value_attrs = nx.get_node_attributes(graph, attr)
 
-       # resccle the attribute values
+       # rescale the attribute values
        maxval = max(value_attrs.values())
        minval = min(value_attrs.values())
        for key in value_attrs.keys():

@@ -94,7 +94,26 @@ def id_translate(source_file, output_file, alias_key, preferred_source,header=Fa
                      #               line += '\n'
                      #               multlst.writelines(line)
 
-if __name__ == "__main__":
-    goterm = "GO:0009819" # drought response
-    filename = "response.json"
-    get_go_json(goterm)
+# I don't think this bit of code is necessary as it would make more sense to just try and find the GO identification
+# for all clusters and then see how the bridges might affect them
+#     for algo in algorithms:
+#
+#         # For each algorithm
+#         print(algo)
+#         relating_clusters = []
+#         for proteins in commons:
+#             # For each protein in the list of inter-modular proteins
+#             # Find its cluster
+#             cluster = graph.nodes[proteins][algo]
+#
+#             # Get other proteins with the same cluster
+#             others = [node for node in graph.nodes if graph.nodes[node][algo] == cluster]
+#
+#             others = stringidconvert(others)
+#             relating_clusters.append(others)
+#
+#         with open(os.path.join('outputs/results',f'{algo}.tsv'),'w') as file:
+#             filetowrite = lists_as_cols(relating_clusters)
+#             filetowrite.insert(0,[f'cluster {i+1}' for i in range(len(filetowrite[0]))])
+#             for line in filetowrite:
+#                 file.writelines('\t'.join(line) + '\n')
