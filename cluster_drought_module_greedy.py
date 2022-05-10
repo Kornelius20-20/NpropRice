@@ -2,7 +2,8 @@ import os
 import networkx as nx
 import pandas as pd
 
-def descendingdictkeys(dic, desc=True, withvalues=False):
+
+def descendingdictkeys(inputdict, ascending=False, onlykeys=False, onlyvalues=False):
        """
        Method that takes in a dictionary with keys and values that are integers and returns the keys in descending order
        of the values
@@ -17,23 +18,23 @@ def descendingdictkeys(dic, desc=True, withvalues=False):
 
        """
 
-       keys, values = zip(*dic.items())
-       keys = list(keys)
+       keys, values = zip(*inputdict.items())
+       keys =  list(keys)
        values = list(values)
 
-       output = []
+       outputlist = []
        while len(values) > 0:
-              bestind = values.index(max(values))
-              if withvalues:
-                     output.append([values[bestind],keys[bestind]])
-              else:
-                     output.append(keys[bestind])
-              keys.pop(bestind)
-              values.pop(bestind)
+              id = values.index(max(values))
 
-       if desc:
-              return output
-       else: return output.reverse()
+              outputlist.append([keys[id], values[id]])
+              values.pop(id)
+              keys.pop(id)
+
+       if ascending: outputlist.reverse()
+       if onlykeys: outputlist = [i[0] for i in outputlist]
+       if onlyvalues: outputlist = [i[1] for i in outputlist]
+
+       return outputlist
 
 
 # calculating partition coefficient
@@ -64,7 +65,13 @@ def partition_coefficient(graph, cluster_attr='cluster'):
        return graph
 
 
-def get_best_scoring_nodes(graph, attr, cutoff=50):
+def get_best_scoring_nodes(graph, attr, cutoff=50,descending=True):
+       """
+
+       Method that takes a graph and a numerical attribute and only returns the nodes that score higher than a certain
+       cutoff sorted by descending order
+
+       """
        value_attrs = nx.get_node_attributes(graph, attr)
 
        # rescale the attribute values
@@ -78,7 +85,7 @@ def get_best_scoring_nodes(graph, attr, cutoff=50):
        for key, value in value_attrs.items():
               if value >= cutoff: outputnodes.append([value, key])
 
-       outputnodes.sort(reverse=True)
+       outputnodes.sort(reverse=descending)
 
        return [i[1] for i in outputnodes]
 
@@ -125,3 +132,28 @@ for _,_,files in os.walk('outputs/graphs'):
                      graph = partition_coefficient(graph, attr)
 
               nx.write_gexf(graph,os.path.join('outputs/graphs',file))
+
+def transpose_lists(inputlist):
+       """
+
+       Method that takes in a list of list and outputs its transpose
+
+       """
+       numcols = len(inputlist)
+       longestlist = max([len(i) for i in inputlist])
+
+       newlist = []
+
+       for i in range(longestlist):
+        line = []
+
+        for j in range(numcols):
+            try:
+                prot = inputlist[j].pop(0)
+            except IndexError:
+                prot = ''
+            line.append(prot)
+
+        newlist.append(line)
+
+       return newlist
