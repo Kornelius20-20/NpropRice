@@ -109,6 +109,7 @@ def graph_with_weights(wgraph,alias_key,p,outcode='outputgraph',scale=True,cutof
 
         i += 1
 
+    nx.write_gexf(wgraph,f"outputs/{outcode}.gexf")
     prunedgraph = wgraph.subgraph(sub_nodes)
 
     # Create directories to hold output files

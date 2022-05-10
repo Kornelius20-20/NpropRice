@@ -2,6 +2,25 @@ import os
 import networkx as nx
 import pandas as pd
 
+def add_seeds_tograph(graph):
+
+    with open("txt/string_seeds.txt", 'r') as file:
+        lines = set([line.strip() for line in file.readlines()])
+
+    for node in graph.nodes:
+        if node in lines: graph.nodes[node]['isSeed'] = True
+
+    return graph
+
+
+def get_seed_scores(graph):
+
+    with open("txt/string_seeds.txt", 'r') as file:
+        lines = set([line.strip() for line in file.readlines()])
+
+    for node in graph.nodes:
+        if node in lines:
+            print(f"{node} present with score: {graph.nodes[node]['weight']}")
 
 def descendingdictkeys(inputdict, ascending=False, onlykeys=False, onlyvalues=False):
        """

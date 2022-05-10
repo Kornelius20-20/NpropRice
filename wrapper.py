@@ -22,7 +22,7 @@ seedlist = r"txt/string_seeds.txt"
 aliasfile = "gz/39947.protein.aliases.v11.5.txt.gz"
 dframe2 = "txt/uniprot_original.csv"
 delim = ','
-regen = True
+regen = False
 
 # Load graph
 maingraph = nx.read_gexf('graph.gexf')
@@ -76,6 +76,7 @@ for i in range(len(weight)):
                 results.to_csv(f'outputs/results/{graphfile[15:-5]}.csv')
 
             nx.write_gexf(graph, outgraph)
+
 
 import result_processing as rp
 
