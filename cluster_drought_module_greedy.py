@@ -118,6 +118,31 @@ def add_clustering_as_attr(graph, clusters, attrname):
 
        return graph
 
+def transpose_lists(inputlist):
+       """
+
+       Method that takes in a list of list and outputs its transpose
+
+       """
+       numcols = len(inputlist)
+       longestlist = max([len(i) for i in inputlist])
+
+       newlist = []
+
+       for i in range(longestlist):
+        line = []
+
+        for j in range(numcols):
+            try:
+                prot = inputlist[j].pop(0)
+            except IndexError:
+                prot = ''
+            line.append(prot)
+
+        newlist.append(line)
+
+       return newlist
+
 
 aliasfile = "gz/39947.protein.aliases.v11.5.txt.gz"
 outputdir = "outputs/results"
@@ -152,27 +177,3 @@ for _,_,files in os.walk('outputs/graphs'):
 
               nx.write_gexf(graph,os.path.join('outputs/graphs',file))
 
-def transpose_lists(inputlist):
-       """
-
-       Method that takes in a list of list and outputs its transpose
-
-       """
-       numcols = len(inputlist)
-       longestlist = max([len(i) for i in inputlist])
-
-       newlist = []
-
-       for i in range(longestlist):
-        line = []
-
-        for j in range(numcols):
-            try:
-                prot = inputlist[j].pop(0)
-            except IndexError:
-                prot = ''
-            line.append(prot)
-
-        newlist.append(line)
-
-       return newlist
