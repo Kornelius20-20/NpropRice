@@ -70,7 +70,7 @@ def _rwr(p0, alpha, A, invD, iter):
     alp0 = cp.array(alpha * p0)
     p = alp0
     for i in range(iter):
-        p = alp0 + (1 - alpha) * cp.matmul(W, p)
+        p = alp0 + (1 - alpha) * cp.dot(W, p)
 
     return cp.asnumpy(p)
 
@@ -163,8 +163,7 @@ def netprop(graph,seedlist,aliasfile,weight,alpha,iter,scale=True,cutoff=cutoff,
             D[i, i] = degree
             i += 1
         invD = np.linalg.inv(D)
-        # with open('tmp.npy', 'wb') as file:
-        #     np.save(file, invD)
+
 
     alias_key = create_aliasdict(aliasfile)
 
