@@ -27,14 +27,14 @@ regen = False
 # Load graph
 maingraph = nx.read_gexf('graph.gexf')
 # number of iterations to run to the random walk
-iter = [50]
+iter = [25,30,40]
 # following parameters should be given in list form
 # weight to give to seeds
 weight = [10]
 # restart parameter
 alpha = [0.1]
 
-cutoff = 35.0
+cutoffs = [15.0,20.0,25.0]
 
 # Create directories to hold output files
 if not os.path.exists("/outputs"):
@@ -49,33 +49,34 @@ if not os.path.exists("outputs/results"):
 dframe = pd.read_csv(dframe2,delimiter=delim)
 frame = pd.read_csv(dframe2,delimiter=delim)
 
-for i in range(len(weight)):
-    for j in range(len(alpha)):
-        for k in range(len(iter)):
-            # Run network propagation with the given values
-            graphfile = netprop.netprop(maingraph,seedlist,aliasfile,weight[i],alpha[j],iter[k],regen=regen,cutoff=cutoff)
+for cutoff in cutoffs:
+    for i in range(len(weight)):
+        for j in range(len(alpha)):
+            for k in range(len(iter)):
+                # Run network propagation with the given values
+                graphfile = netprop.netprop(maingraph,seedlist,aliasfile,weight[i],alpha[j],iter[k],regen=regen,cutoff=cutoff)
 
-            outgraph = graphfile[:-5] + "seedsAndGO.gexf"
-            graph = nx.read_gexf(graphfile)
+                outgraph = graphfile[:-5] + "seedsAndGO.gexf"
+                graph = nx.read_gexf(graphfile)
 
 
-            graph = approx_go.assign_metadata(graph, frame, asterm=False,seedlist=seedlist)
-            graph = approx_go.assign_best_go_id(graph)
+                graph = approx_go.assign_metadata(graph, frame, asterm=False,seedlist=seedlist)
+                graph = approx_go.assign_best_go_id(graph)
 
-            # Get nodes that aren't seeds and their weights
-            nodelist, weightlist = get_non_seeds(graph, True)
+                # Get nodes that aren't seeds and their weights
+                nodelist, weightlist = get_non_seeds(graph, True)
 
-            # sort them in ascending order
-            nodes, weights = descendingnodes(nodelist, weightlist, True)
+                # sort them in ascending order
+                nodes, weights = descendingnodes(nodelist, weightlist, True)
 
-            entries = [dframe.loc[dframe['Entry'] == node] for node in nodes]
-            if len(entries) > 0:
-                results = pd.concat(entries)
-                weights = [weights[nodes.index(i)] for i in results['Entry']]
-                results['weights'] = weights
-                results.to_csv(f'outputs/results/{graphfile[15:-5]}.csv')
+                entries = [dframe.loc[dframe['Entry'] == node] for node in nodes]
+                if len(entries) > 0:
+                    results = pd.concat(entries)
+                    weights = [weights[nodes.index(i)] for i in results['Entry']]
+                    results['weights'] = weights
+                    results.to_csv(f'outputs/results/{graphfile[15:-5]}.csv')
 
-            nx.write_gexf(graph, outgraph)
+                nx.write_gexf(graph, outgraph)
 
 
 import result_processing as rp

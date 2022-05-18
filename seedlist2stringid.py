@@ -48,3 +48,5 @@ if __name__ == "__main__":
 
     with open(os.path.join(seedout),'w') as file:
         file.writelines('\n'.join(seedlist))
+
+    print(len(protlist),len(seedlist))
