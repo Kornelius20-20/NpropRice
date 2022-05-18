@@ -19,7 +19,8 @@ outfile = "p"
 scale_limit = 100.0
 cutoff = 35.0
 
-def weights_from_seeds(graph,seedlist, weight=100):
+
+def weights_from_seeds(graph, seedlist, weight=100):
     """
     Takes an input graph and creates a list of weights for the graph nodes, where each seed node from a list
     of seeds will get assigned the starting weight value (defaults to 100) and all other nodes will start at
@@ -75,7 +76,7 @@ def _rwr(p0, alpha, A, invD, iter):
     return cp.asnumpy(p)
 
 
-def graph_with_weights(wgraph,alias_key,p,outcode='outputgraph',scale=True,cutoff=0):
+def graph_with_weights(wgraph, alias_key, p, outcode='outputgraph', scale=True, cutoff=0):
     """
     Assigns node label in graph to its uniprot name, assigns its weight from the network propagation output (p)
     optionally will also scale the weights and skip labeling and adding weights to nodes that do not have a
@@ -97,7 +98,7 @@ def graph_with_weights(wgraph,alias_key,p,outcode='outputgraph',scale=True,cutof
 
     sub_nodes = []
     i = 0
-    for node in wgraph.nodes: # for each node
+    for node in wgraph.nodes:  # for each node
         # change its label
         wgraph.nodes[node]['label'] = alias_key[node].get("Uniprot", alias_key[node]["Uniprot"])
         # add it's weight
@@ -109,7 +110,7 @@ def graph_with_weights(wgraph,alias_key,p,outcode='outputgraph',scale=True,cutof
 
         i += 1
 
-    nx.write_gexf(wgraph,f"outputs/{outcode}.gexf")
+    nx.write_gexf(wgraph, f"outputs/{outcode}.gexf")
     prunedgraph = wgraph.subgraph(sub_nodes)
 
     # Create directories to hold output files
@@ -120,12 +121,12 @@ def graph_with_weights(wgraph,alias_key,p,outcode='outputgraph',scale=True,cutof
 
     # write the output graph to disk
     outgraph = "outputs/graphs/" + outcode + '.gexf'
-    nx.write_gexf(prunedgraph,outgraph)
+    nx.write_gexf(prunedgraph, outgraph)
 
     return outgraph
 
 
-def netprop(graph,seedlist,aliasfile,weight,alpha,iter,scale=True,cutoff=cutoff,regen=False):
+def netprop(graph, seedlist, aliasfile, weight, alpha, iter, scale=True, cutoff=cutoff, regen=False):
     """
     Does network propagation in the given graph for the given seeds. The aliasfile is used to replace graph labels with
     the label in the aliasfile. The method can run for multiple times based on the number of values in the weight, alpha
@@ -153,7 +154,7 @@ def netprop(graph,seedlist,aliasfile,weight,alpha,iter,scale=True,cutoff=cutoff,
     # Create the inverse degree matrix and save as a temp file. If a file already exists and regen = False
     # then just use that instead
     try:
-        if regen: raise FileNotFoundError # if regen is set to True, force creation of file
+        if regen: raise FileNotFoundError  # if regen is set to True, force creation of file
         invD = np.load('tmp.npy')
     except FileNotFoundError:
         # Create degree matrix of graph
@@ -163,7 +164,6 @@ def netprop(graph,seedlist,aliasfile,weight,alpha,iter,scale=True,cutoff=cutoff,
             D[i, i] = degree
             i += 1
         invD = np.linalg.inv(D)
-
 
     alias_key = create_aliasdict(aliasfile)
 
@@ -175,9 +175,9 @@ def netprop(graph,seedlist,aliasfile,weight,alpha,iter,scale=True,cutoff=cutoff,
     # save output numpy array
     outcode = f"{outfile}-w={weight}-a={alpha}-i={iter}-c={cutoff}"
     outnpy = outcode + ".npy"
-    with open(outnpy,'wb') as file:
-        np.save(file,p)
+    with open(outnpy, 'wb') as file:
+        np.save(file, p)
 
-    graphname = graph_with_weights(graph,alias_key,p,outcode,scale,cutoff)
+    graphname = graph_with_weights(graph, alias_key, p, outcode, scale, cutoff)
 
     return graphname
