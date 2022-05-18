@@ -37,7 +37,7 @@ def weights_from_seeds(graph,seedlist, weight=100):
 
     for name in graph.nodes:
         if name in seeds:
-            p0.append(100)
+            p0.append(weight)
         else:
             p0.append(0)
 
