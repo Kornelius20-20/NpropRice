@@ -41,7 +41,29 @@ for _,_,files in os.walk(os.path.join(outputdir)):
 
         nx.write_gexf(graph,os.path.join(outputdir,file))
 
-from test2 import get_cand_scores
+def get_cand_scores(graph,candidates,attrs,output='canddata.csv'):
+
+    outputs = []
+    for algo in attrs:
+        data = []
+        for node in candidates:
+            data.append(graph.nodes[node][f"{algo}_PC"])
+        outputs.append(data)
+
+    outputs.insert(0,candidates)
+
+    from cluster_drought_module_greedy import transpose_lists
+
+    outputs = transpose_lists(outputs)
+    algos.insert(0,'candidate')
+
+    with open(output,'w') as file:
+        file.writelines(','.join(algos)+'\n')
+        for line in outputs:
+            line = [str(i) for i in line]
+            file.writelines(','.join(line)+'\n')
+
+
 
 get_cand_scores(graph,commons,algorithms)
 
