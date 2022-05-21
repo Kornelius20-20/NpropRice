@@ -4,6 +4,7 @@ Attempt to code network propagation
 import sys
 
 import networkx as nx
+import numpy
 import numpy as np
 import cupy as cp
 import os

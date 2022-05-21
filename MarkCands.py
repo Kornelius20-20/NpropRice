@@ -55,10 +55,10 @@ def get_cand_scores(graph,candidates,attrs,output='canddata.csv'):
     from cluster_drought_module_greedy import transpose_lists
 
     outputs = transpose_lists(outputs)
-    algos.insert(0,'candidate')
+    attrs.insert(0,'candidate')
 
     with open(output,'w') as file:
-        file.writelines(','.join(algos)+'\n')
+        file.writelines(','.join(attrs)+'\n')
         for line in outputs:
             line = [str(i) for i in line]
             file.writelines(','.join(line)+'\n')
