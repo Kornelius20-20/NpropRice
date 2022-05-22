@@ -3,7 +3,7 @@ import os
 
 outputdir = "outputs/graphs/"
 algorithms = ['greedy_clusters','label_propagation','louvain']
-cuts = [i for i in range(25,75,5)]
+cuts = [50]
 
 
 from cluster_drought_module_greedy import get_best_scoring_nodes,transpose_lists
