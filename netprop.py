@@ -18,7 +18,6 @@ regen = False
 outfile = "p"
 
 scale_limit = 100.0
-cutoff = 35.0
 
 
 def weights_from_seeds(graph, seedlist, weight=100):
@@ -63,18 +62,18 @@ def _rwr(p0, alpha, A, invD, iter):
     :return: numpy array of final weights of nodes
     """
 
-    invD = cp.array(invD)
-    cA = cp.array(A.toarray())
+    invD = np.array(invD)
+    cA = np.array(A.toarray())
 
-    W = cp.matmul(cA, invD)
+    W = np.matmul(cA, invD)
 
     # RWR
-    alp0 = cp.array(alpha * p0)
+    alp0 = np.array(alpha * p0)
     p = alp0
     for i in range(iter):
-        p = alp0 + (1 - alpha) * cp.dot(W, p)
+        p = alp0 + (1 - alpha) * np.dot(W, p)
 
-    return cp.asnumpy(p)
+    return p
 
 
 def graph_with_weights(wgraph, alias_key, p, outcode='outputgraph', scale=True):
@@ -105,6 +104,8 @@ def graph_with_weights(wgraph, alias_key, p, outcode='outputgraph', scale=True):
         # add it's weight
         wgraph.nodes[node]['weight'] = p[i]
 
+        i += 1
+
     # Create directories to hold output files
     if not os.path.exists("/outputs"):
         os.makedirs('/outputs')
@@ -116,7 +117,7 @@ def graph_with_weights(wgraph, alias_key, p, outcode='outputgraph', scale=True):
     return outcode+"_NP.gexf"
 
 
-def netprop(graph, seedlist, aliasfile, weight, alpha, iter, scale=True, cutoff=cutoff, regen=False):
+def netprop(graph, seedlist, aliasfile, weight, alpha, iter, scale=True, regen=False):
     """
     Does network propagation in the given graph for the given seeds. The aliasfile is used to replace graph labels with
     the label in the aliasfile. The method can run for multiple times based on the number of values in the weight, alpha
@@ -163,11 +164,11 @@ def netprop(graph, seedlist, aliasfile, weight, alpha, iter, scale=True, cutoff=
     p = _rwr(p0, alpha, A, invD, iter)
 
     # save output numpy array
-    outcode = f"{outfile}-w={weight}-a={alpha}-i={iter}-c={cutoff}"
+    outcode = f"{outfile}-w={weight}-a={alpha}-i={iter}"
     outnpy = outcode + ".npy"
     with open(outnpy, 'wb') as file:
         np.save(file, p)
 
-    graphname = graph_with_weights(graph, alias_key, p, outcode, scale, cutoff)
+    graphname = graph_with_weights(graph, alias_key, p, outcode, scale)
 
     return graphname
