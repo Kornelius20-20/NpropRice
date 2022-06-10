@@ -13,7 +13,6 @@ network propagation
 import networkx as nx
 import pandas as pd
 import netprop
-import approx_go
 import os
 from get_high_scores import get_non_seeds,descendingnodes
 
@@ -71,10 +70,6 @@ def cutoff_graph(graphname,attr,cutoffs):
 
         nx.write_gexf(newgraph,os.path.join(outputdir,f"{graphname[:-5]}_{cut}.gexf"))
 
-# generate_graphs(weight,alpha,iter)
-
-# cutoff_graph("p-w=10-a=0.1-i=40_NP.gexf",'weight',cutoffs)
-
 def get_top_100(graphname,attr,howmany=100):
     from get_high_scores import descendingnodes
 
@@ -85,6 +80,11 @@ def get_top_100(graphname,attr,howmany=100):
     top = descendingnodes(keys,values)[:howmany]
 
     return top
+
+# generate_graphs(weight,alpha,iter)
+
+# cutoff_graph("p-w=10-a=0.1-i=40_NP.gexf",'weight',cutoffs)
+
 
 test = get_top_100("p-w=10-a=0.1-i=40_NP.gexf",'weight')
 
@@ -109,11 +109,11 @@ def get_drought_module(graphfile,nodes):
             if line == '': break
 
             line = line.strip().split('\t')
-            if line[0] in nodes or line[1] in nodes:
+            if line[0] in nodes and line[1] in nodes:
                 graph.add_edge(line[0],line[1],weight=line[2])
 
 
     nx.write_gexf(graph,"droughtmodule.gexf")
-print(test)
+print(len(test))
 get_drought_module("txt/ppi.tsv",test)
 

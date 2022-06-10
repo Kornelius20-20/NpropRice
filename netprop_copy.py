@@ -117,7 +117,7 @@ def graph_with_weights(wgraph, alias_key, p, outcode='outputgraph', scale=True):
     return outcode+"_NP.gexf"
 
 
-def netprop(graph, seedlist, aliasfile, weight, alpha, iter, scale=True, regen=False):
+def netprop(graph, seedlist, aliasfile, weight, alpha, iterevery, iterend=101, scale=True, regen=False):
     """
     Does network propagation in the given graph for the given seeds. The aliasfile is used to replace graph labels with
     the label in the aliasfile. The method can run for multiple times based on the number of values in the weight, alpha
@@ -132,7 +132,7 @@ def netprop(graph, seedlist, aliasfile, weight, alpha, iter, scale=True, regen=F
     :param aliasfile: path to gz file with STRING db aliases
     :param weight: list of default weight values to give when initializing network propagation
     :param alpha: list of alpha values (learning parameter) to give when initializing network propagation
-    :param iter: list of iteration numbers to give when initializing network propagation
+    :param iterevery: list of iteration numbers to give when initializing network propagation
     :param scale: Whether to scale the value or not
     :param cutoff: defines the optional cutoff below which nodes will not be added to the output graph
     :param regen: regenerate the numpy arrays for some matrices on subsequent runs. Can usually be set to False
@@ -161,14 +161,18 @@ def netprop(graph, seedlist, aliasfile, weight, alpha, iter, scale=True, regen=F
     # Input weights for network
     p0 = weights_from_seeds(graph, seedlist, weight)
     # Do a random walk for some iterations and get the final weight vector for nodes
-    p = _rwr(p0, alpha, A, invD, iter)
 
-    # save output numpy array
-    outcode = f"{outfile}-w={weight}-a={alpha}-i={iter}"
-    outnpy = outcode + ".npy"
-    with open(outnpy, 'wb') as file:
-        np.save(file, p)
+    for i in range(iterevery,iterend,iterevery):
+        p = _rwr(p0, alpha, A, invD, iterevery)
 
-    graphname = graph_with_weights(graph, alias_key, p, outcode, scale)
+        # save output numpy array
+        outcode = f"{outfile}-w={weight}-a={alpha}-i={i}"
+        outnpy = outcode + ".npy"
+        with open(outnpy, 'wb') as file:
+            np.save(file, p)
+
+        graphname = graph_with_weights(graph, alias_key, p, outcode, scale)
+
+        p0 = p
 
     return graphname

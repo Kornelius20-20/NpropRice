@@ -153,6 +153,7 @@ frame = pd.read_csv(dframe2, delimiter=',')
 for _, _, files in os.walk('outputs/graphs'):
     for file in files:
         if "seedsAndGO" not in file:
+            print(file)
             graph = nx.read_gexf(os.path.join('outputs/graphs', file))
 
             # Do greedy clustering

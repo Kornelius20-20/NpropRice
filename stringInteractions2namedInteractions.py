@@ -17,7 +17,7 @@ preferred_source = "Uniprot"
 graphfile = 'test.gexf'
 
 
-def create_aliasdict(aliasfile):
+def create_aliasdict(aliasfile=aliasfile):
     """
     A method that takes a protein alias file as a gzip file and builds a dictionary with keys being STRINGIDs
     and values being dictionaries containing keys as sources and corresponding source-related names as values within
