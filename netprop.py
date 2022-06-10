@@ -77,7 +77,7 @@ def _rwr(p0, alpha, A, invD, iter):
     return cp.asnumpy(p)
 
 
-def graph_with_weights(wgraph, alias_key, p, outcode='outputgraph', scale=True, cutoff=0,manualseeds="txt/manual_mined_seeds.txt"):
+def graph_with_weights(wgraph, alias_key, p, outcode='outputgraph', scale=True):
     """
     Assigns node label in graph to its uniprot name, assigns its weight from the network propagation output (p)
     optionally will also scale the weights and skip labeling and adding weights to nodes that do not have a
