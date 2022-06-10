@@ -95,4 +95,24 @@ with open(manualseeds, 'r') as file:
 # add nodes to candidate list
 for i in manualseeds: test.append(i)
 
-def get_drought_module(graphfile,nodes)
+
+def get_drought_module(graphfile,nodes):
+
+    nodes = set(nodes)
+    graph = nx.Graph()
+
+    with open(graphfile,'r') as file:
+        line = file.readline()
+        while True:
+            line = file.readline()
+            if line == '': break
+
+            line = line.strip().split('\t')
+            if line[0] in nodes and line[1] in nodes:
+                graph.add_edge(line[0],line[1],weight=line[2])
+
+
+    nx.write_gexf(graph,"droughtmodule.gexf")
+
+get_drought_module("txt/ppi.tsv",test)
+
