@@ -88,9 +88,10 @@ def get_top_100(graphname,attr,howmany=100):
 
 test = get_top_100("p-w=10-a=0.1-i=40_NP.gexf",'weight')
 
-manualseeds = "txt/manual_mined_seeds.txt"
+manualseeds = "txt/string_seeds.txt"
 with open(manualseeds, 'r') as file:
     manualseeds = [line.strip() for line in file.readlines()]
+
 
 # add nodes to candidate list
 for i in manualseeds: test.append(i)
@@ -113,6 +114,6 @@ def get_drought_module(graphfile,nodes):
 
 
     nx.write_gexf(graph,"droughtmodule.gexf")
-
+print(test)
 get_drought_module("txt/ppi.tsv",test)
 
