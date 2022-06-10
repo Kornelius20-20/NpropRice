@@ -12,8 +12,10 @@ network propagation
 
 import networkx as nx
 import pandas as pd
-import netprop
+import netprop_copy as netprop
 import os
+
+import stringInteractions2namedInteractions
 from get_high_scores import get_non_seeds,descendingnodes
 
 # From netprop
@@ -32,9 +34,9 @@ iter = [40]
 # weight to give to seeds
 weight = [10]
 # restart parameter
-alpha = [0.1]
+alpha = [0.1,1.1,2]
 
-cutoffs = [float(i) for i in range(20,96,5)]
+cutoffs = [float(i) for i in range(50,76,5)]
 
 # Create directories to hold output files
 if not os.path.exists("/outputs"):
@@ -54,7 +56,7 @@ def generate_graphs(weight,alpha,iter):
         for j in range(len(alpha)):
             for k in range(len(iter)):
                 # Run network propagation with the given values
-                graphfile = netprop.netprop(maingraph, seedlist, aliasfile, weight[i], alpha[j], iter[k], regen=regen)
+                graphfile = netprop.netprop(maingraph, seedlist, aliasfile, weight[i], alpha[j], iterevery=10, regen=regen)
 
 def cutoff_graph(graphname,attr,cutoffs):
 
@@ -83,19 +85,12 @@ def get_top_100(graphname,attr,howmany=100):
 
 # generate_graphs(weight,alpha,iter)
 
-# cutoff_graph("p-w=10-a=0.1-i=40_NP.gexf",'weight',cutoffs)
+for _,_,files in os.walk("outputs"):
 
+    for file in files:
+        cutoff_graph(file,'weight',cutoffs)
 
-test = get_top_100("p-w=10-a=0.1-i=40_NP.gexf",'weight')
-
-manualseeds = "txt/string_seeds.txt"
-with open(manualseeds, 'r') as file:
-    manualseeds = [line.strip() for line in file.readlines()]
-
-
-# add nodes to candidate list
-for i in manualseeds: test.append(i)
-
+    break
 
 def get_drought_module(graphfile,nodes):
 
@@ -113,7 +108,43 @@ def get_drought_module(graphfile,nodes):
                 graph.add_edge(line[0],line[1],weight=line[2])
 
 
-    nx.write_gexf(graph,"droughtmodule.gexf")
-print(len(test))
-get_drought_module("txt/ppi.tsv",test)
+    return graph
+
+
+from stringInteractions2namedInteractions import stringidconvert,create_aliasdict
+
+aliasdict = create_aliasdict(stringInteractions2namedInteractions.aliasfile)
+
+manualseeds = "txt/string_seeds.txt"
+with open(manualseeds, 'r') as file:
+    manualseeds = [line.strip() for line in file.readlines()]
+
+
+for _,_,files in os.walk("outputs/graphs"):
+
+    for file in files:
+
+        graph = nx.read_gexf(os.path.join("outputs/graphs",file))
+
+        # Get predicted drought proteins
+        preds = list(graph.nodes)
+        # add seeds
+        preds.extend(manualseeds)
+
+        graph = get_drought_module("txt/ppi.tsv",preds)
+
+        # Mark nodes
+        for node in manualseeds:
+            try:
+                graph.nodes[node]['isSeed'] = True
+            except KeyError:
+                None
+
+        # Change node labels to uniprot names
+        for node in graph.nodes:
+            graph.nodes[node]['label'] = stringidconvert([node],aliasdict,'Uniprot')[0]
+
+        nx.write_gexf(graph,os.path.join("outputs/results",file))
+
+
 

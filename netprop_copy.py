@@ -173,6 +173,7 @@ def netprop(graph, seedlist, aliasfile, weight, alpha, iterevery, iterend=101, s
 
         graphname = graph_with_weights(graph, alias_key, p, outcode, scale)
 
+        print(f"iteration {i} done!")
         p0 = p
 
     return graphname
