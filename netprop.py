@@ -77,7 +77,7 @@ def _rwr(p0, alpha, A, invD, iter):
     return cp.asnumpy(p)
 
 
-def graph_with_weights(wgraph, alias_key, p, outcode='outputgraph', scale=True, cutoff=0):
+def graph_with_weights(wgraph, alias_key, p, outcode='outputgraph', scale=True, cutoff=0,manualseeds="txt/manual_mined_seeds.txt"):
     """
     Assigns node label in graph to its uniprot name, assigns its weight from the network propagation output (p)
     optionally will also scale the weights and skip labeling and adding weights to nodes that do not have a
@@ -105,26 +105,15 @@ def graph_with_weights(wgraph, alias_key, p, outcode='outputgraph', scale=True, 
         # add it's weight
         wgraph.nodes[node]['weight'] = p[i]
 
-        # ONLY KEEPS LABELS ABOVE CUTOFF
-        # Get nodes to keep
-        if p[i] > cutoff: sub_nodes.append(node)
-
-        i += 1
-
-    nx.write_gexf(wgraph, f"outputs/{outcode}.gexf")
-    prunedgraph = wgraph.subgraph(sub_nodes)
-
     # Create directories to hold output files
     if not os.path.exists("/outputs"):
         os.makedirs('/outputs')
         if not os.path.exists("outputs/graphs"):
             os.makedirs('outputs/graphs')
 
-    # write the output graph to disk
-    outgraph = "outputs/graphs/" + outcode + '.gexf'
-    nx.write_gexf(prunedgraph, outgraph)
+    nx.write_gexf(wgraph, f"outputs/{outcode}_NP.gexf")
 
-    return outgraph
+    return outcode+"_NP.gexf"
 
 
 def netprop(graph, seedlist, aliasfile, weight, alpha, iter, scale=True, cutoff=cutoff, regen=False):

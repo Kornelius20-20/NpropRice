@@ -34,7 +34,7 @@ weight = [10]
 # restart parameter
 alpha = [0.1]
 
-cutoffs = [30.0]
+cutoffs = [75.0,90.0]
 
 # Create directories to hold output files
 if not os.path.exists("/outputs"):
@@ -49,39 +49,9 @@ if not os.path.exists("outputs/results"):
 dframe = pd.read_csv(dframe2,delimiter=delim)
 frame = pd.read_csv(dframe2,delimiter=delim)
 
-for cutoff in cutoffs:
-    for i in range(len(weight)):
-        for j in range(len(alpha)):
-            for k in range(len(iter)):
-                # Run network propagation with the given values
-                graphfile = netprop.netprop(maingraph,seedlist,aliasfile,weight[i],alpha[j],iter[k],regen=regen,cutoff=cutoff)
+for i in range(len(weight)):
+    for j in range(len(alpha)):
+        for k in range(len(iter)):
+            # Run network propagation with the given values
+            graphfile = netprop.netprop(maingraph,seedlist,aliasfile,weight[i],alpha[j],iter[k],regen=regen,cutoff=cutoff)
 
-                outgraph = graphfile[:-5] + "seedsAndGO.gexf"
-                graph = nx.read_gexf(graphfile)
-
-
-                graph = approx_go.assign_metadata(graph, frame, asterm=False,seedlist=seedlist)
-                graph = approx_go.assign_best_go_id(graph)
-
-                # Get nodes that aren't seeds and their weights
-                nodelist, weightlist = get_non_seeds(graph, True)
-
-                # sort them in ascending order
-                nodes, weights = descendingnodes(nodelist, weightlist, True)
-
-                entries = [dframe.loc[dframe['Entry'] == node] for node in nodes]
-                if len(entries) > 0:
-                    results = pd.concat(entries)
-                    weights = [weights[nodes.index(i)] for i in results['Entry']]
-                    results['weights'] = weights
-                    results.to_csv(f'outputs/results/{graphfile[15:-5]}.csv')
-
-                # nx.write_gexf(graph, outgraph)
-
-
-import result_processing as rp
-
-outputdir = "outputs/results"
-outputprots = rp.concat_outputs(outputdir)
-candset = set(outputprots['Entry'].tolist())
-print(rp.get_best_csv_name(candset,outputdir))
