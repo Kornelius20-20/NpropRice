@@ -109,7 +109,7 @@ def get_drought_module(graphfile,nodes):
             if line == '': break
 
             line = line.strip().split('\t')
-            if line[0] in nodes and line[1] in nodes:
+            if line[0] in nodes or line[1] in nodes:
                 graph.add_edge(line[0],line[1],weight=line[2])
 
 
