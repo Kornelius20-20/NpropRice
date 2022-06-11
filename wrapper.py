@@ -29,14 +29,14 @@ regen = False
 # Load graph
 maingraph = nx.read_gexf('graph.gexf')
 # number of iterations to run to the random walk
-iter = [40]
+iter = [10]
 # following parameters should be given in list form
 # weight to give to seeds
-weight = [10]
+weight = [100]
 # restart parameter
-alpha = [0.1,1.1,2]
+alpha = [0.1]
 
-cutoffs = [float(i) for i in range(50,76,5)]
+cutoffs = [float(i) for i in range(2,10,2)]
 
 # Create directories to hold output files
 if not os.path.exists("/outputs"):
@@ -56,7 +56,7 @@ def generate_graphs(weight,alpha,iter):
         for j in range(len(alpha)):
             for k in range(len(iter)):
                 # Run network propagation with the given values
-                graphfile = netprop.netprop(maingraph, seedlist, aliasfile, weight[i], alpha[j], iterevery=10, regen=regen)
+                graphfile = netprop.netprop(maingraph, seedlist, aliasfile, weight[i], alpha[j], iterevery=2,iterend=6, regen=regen)
 
 def cutoff_graph(graphname,attr,cutoffs):
 
@@ -72,25 +72,14 @@ def cutoff_graph(graphname,attr,cutoffs):
 
         nx.write_gexf(newgraph,os.path.join(outputdir,f"{graphname[:-5]}_{cut}.gexf"))
 
-def get_top_100(graphname,attr,howmany=100):
+def get_top(graph,attr,howmany=100):
     from get_high_scores import descendingnodes
-
-    graph = nx.read_gexf(os.path.join("outputs", graphname))
 
     keys, values = zip(*nx.get_node_attributes(graph,attr).items())
 
     top = descendingnodes(keys,values)[:howmany]
 
     return top
-
-# generate_graphs(weight,alpha,iter)
-
-for _,_,files in os.walk("outputs"):
-
-    for file in files:
-        cutoff_graph(file,'weight',cutoffs)
-
-    break
 
 def get_drought_module(graphfile,nodes):
 
@@ -119,32 +108,54 @@ manualseeds = "txt/string_seeds.txt"
 with open(manualseeds, 'r') as file:
     manualseeds = [line.strip() for line in file.readlines()]
 
+# generate_graphs(weight,alpha,iter)
+#
+# for _,_,files in os.walk("outputs"):
+#
+#     for file in files:
+#         cutoff_graph(file,'weight',cutoffs)
+#
+#     break
 
-for _,_,files in os.walk("outputs/graphs"):
+
+# for _,_,files in os.walk("outputs/graphs"):
+#
+#     for file in files:
+#
+#         graph = nx.read_gexf(os.path.join("outputs/graphs",file))
+#
+#         # Get predicted drought proteins
+#         preds = list(graph.nodes)
+#         # add seeds
+#         preds.extend(manualseeds)
+#
+#         graph = get_drought_module("txt/ppi.tsv",preds)
+#
+#
+#         # Change node labels to uniprot names
+#         for node in graph.nodes:
+#             graph.nodes[node]['label'] = stringidconvert([node],aliasdict,'Uniprot')[0]
+#
+#         nx.write_gexf(graph,os.path.join("outputs/results",file))
+
+
+def add_seeds(graph,seedlist):
+    # Mark nodes
+    for node in seedlist:
+        try:
+            graph.nodes[node]['isSeed'] = True
+        except KeyError:
+            None
+
+from cluster_drought_module_greedy import get_best_scoring_nodes
+for _,_,files in os.walk("outputs"):
 
     for file in files:
+        graph = nx.read_gexf(os.path.join("outputs",file))
 
-        graph = nx.read_gexf(os.path.join("outputs/graphs",file))
+        predicts = get_top(graph,'weight',500)
+        predicts.extend(manualseeds)
 
-        # Get predicted drought proteins
-        preds = list(graph.nodes)
-        # add seeds
-        preds.extend(manualseeds)
+        nx.write_gexf(nx.subgraph(graph,predicts),os.path.join("outputs/graphs",file))
 
-        graph = get_drought_module("txt/ppi.tsv",preds)
-
-        # Mark nodes
-        for node in manualseeds:
-            try:
-                graph.nodes[node]['isSeed'] = True
-            except KeyError:
-                None
-
-        # Change node labels to uniprot names
-        for node in graph.nodes:
-            graph.nodes[node]['label'] = stringidconvert([node],aliasdict,'Uniprot')[0]
-
-        nx.write_gexf(graph,os.path.join("outputs/results",file))
-
-
-
+    break
