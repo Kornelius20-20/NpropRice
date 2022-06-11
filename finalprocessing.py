@@ -105,14 +105,6 @@ def do_hishi():
 
     nx.write_gexf(graph,"test.gexf")
 
-for _,_,files in os.walk("outputs/results"):
-
-    for file in files:
-        if file[-5:] == ".gexf":
-
-            graph = nx.read_gexf(os.path.join("outputs/results",file))
-
-            clusters_as_david_list(graph,'label_propagation_PC',os.path.join("outputs/results",f"{file[:-5]}.csv"))
 
 def add_as_seeds_code():
     for _,_,files in os.walk("outputs"):
@@ -130,3 +122,13 @@ def add_as_seeds_code():
             nx.write_gexf(graph,os.path.join("outputs",file))
 
         break
+
+
+for _,_,files in os.walk("outputs/results"):
+
+    for file in files:
+        if file[-5:] == ".gexf":
+
+            graph = nx.read_gexf(os.path.join("outputs/results",file))
+
+            clusters_as_david_list(graph,'label_propagation',os.path.join("outputs/results",f"{file[:-5]}.tsv"))
