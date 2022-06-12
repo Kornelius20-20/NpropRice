@@ -79,13 +79,15 @@ def get_top(graph,attr,howmany=100,returnscores=False):
 
     topnamesandscores = descendingnodes(keys,values,returnboth=returnscores)
 
-    topnamesandscores[0] = [graph.nodes[node]['label'] for node in topnamesandscores[0]][:howmany]
-    topnamesandscores[1] = topnamesandscores[1][:howmany]
-
     if returnscores:
-        return (topnamesandscores[0],topnamesandscores[1])
+        topnamesandscores[0] = topnamesandscores[0][:howmany]
+        topnamesandscores[1] = topnamesandscores[1][:howmany]
+
+        return (topnamesandscores[0], topnamesandscores[1])
     else:
-        return topnamesandscores[0]
+        topnamesandscores = topnamesandscores[:howmany]
+
+        return topnamesandscores
 
 def add_seeds(graph,seedlist):
     # Mark nodes
@@ -94,6 +96,8 @@ def add_seeds(graph,seedlist):
             graph.nodes[node]['isSeed'] = True
         except KeyError:
             None
+
+    return graph
 
 if __name__=="__main__":
     from stringInteractions2namedInteractions import stringidconvert,create_aliasdict
@@ -119,6 +123,9 @@ if __name__=="__main__":
                 predicts = get_top(graph,'weight',howmany=i)
                 predicts.extend(manualseeds)
 
-                nx.write_gexf(nx.subgraph(graph,predicts),os.path.join("outputs/topnums",f"{file[:-5]}_{i}.gexf"))
+                graph = nx.subgraph(graph,predicts)
+                graph = add_seeds(graph,manualseeds)
+
+                nx.write_gexf(graph,os.path.join("outputs/graphs",f"{file[:-5]}_{i}.gexf"))
 
             break

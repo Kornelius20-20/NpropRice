@@ -7,9 +7,6 @@ stringseeds = "txt/string_seeds.txt"
 with open(stringseeds, 'r') as file:
     stringseeds = [line.strip() for line in file.readlines()]
 
-manualseeds = "txt/string_seeds.txt"
-with open(manualseeds, 'r') as file:
-    manualseeds = [line.strip() for line in file.readlines()]
 
 
 # graph = nx.read_gexf(g)
@@ -109,28 +106,35 @@ nx.write_gexf(graph, 'outputs/results/p-w=100-a=0.1-i=5_NP_250.gexf')
 
 nodeseeds = {}
 for node in graph.nodes:
-    key = graph.nodes[node]['label']
+    key = node
     try:
-        value = graph.nodes[node]['seed']
+        value = graph.nodes[node]['isSeed']
     except KeyError:
         value = False
     nodeseeds[key] = value
 
 from wrapper import get_top
+from stringInteractions2namedInteractions import stringidconvert,aliasfile,create_aliasdict
+
+aliasdict = create_aliasdict(aliasfile)
 
 # Get top component of graph
 maincomp = remove_strays(graph)
 
-nodes = get_top(maincomp, f"label_propagation_PC", howmany=10, returnscores=True)
+nodes = list(get_top(maincomp, f"label_propagation_PC", howmany=10, returnscores=True))
 
-nodes = list(zip(nodes[0], nodes[1]))
+
+formatted = []
+for name, score in zip(nodes[0], nodes[1]):
+    formatted.append([ stringidconvert([name],aliasdict)[0] , score , nodeseeds[name] ])
 
 with open(os.path.join(resultpath, "top_hubs.csv"), 'w') as file:
     file.write("Candidate,Score,is a seed\n")
-    for name, score in nodes:
-        file.write(f"{name},{score},{nodeseeds[name]}\n")
 
-print(" or ".join([i[0] for i in nodes]))
+    for name, score,seed in formatted:
+        file.write(f"{name},{score},{seed}\n")
+
+
 
 
 path = "outputs/results"
