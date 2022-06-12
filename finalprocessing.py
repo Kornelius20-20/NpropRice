@@ -25,7 +25,7 @@ def clusters_as_david_list(graph,attr,outputfile):
     from cluster_drought_module_greedy import transpose_lists
 
     clustlist = transpose_lists(clustlist)
-    clustlist.insert(0,[f"cluster_{i}" for i in range(int(max(values)))])
+    clustlist.insert(0,[f"cluster_{i+1}" for i in range(int(max(values)))])
 
     with open(outputfile,'w') as file:
         for line in clustlist:
@@ -100,9 +100,9 @@ def convert_labels(graph,source = 'Uniprot'):
 
 
 resultpath = "outputs/results"
-graph = nx.read_gexf('outputs/results/p-w=100-a=0.1-i=5_NP_250.gexf')
+graph = nx.read_gexf('outputs/results/p-w=100-a=0.1-i=5_NP_100.gexf')
 graph = convert_labels(graph)
-nx.write_gexf(graph, 'outputs/results/p-w=100-a=0.1-i=5_NP_250.gexf')
+nx.write_gexf(graph, 'outputs/results/p-w=100-a=0.1-i=5_NP_100.gexf')
 
 nodeseeds = {}
 for node in graph.nodes:
@@ -121,26 +121,28 @@ aliasdict = create_aliasdict(aliasfile)
 # Get top component of graph
 maincomp = remove_strays(graph)
 
-nodes = list(get_top(maincomp, f"label_propagation_PC", howmany=10, returnscores=True))
+nodes = list(get_top(maincomp, f"louvain_PC", howmany=10, returnscores=True))
 
 
 formatted = []
 for name, score in zip(nodes[0], nodes[1]):
-    formatted.append([ stringidconvert([name],aliasdict)[0] , score , nodeseeds[name] ])
+
+    nbs = nx.neighbors(graph,name)
+    nbmods = set([str(graph.nodes[node]['louvain']) for node in nbs])
+
+    formatted.append([ stringidconvert([name],aliasdict)[0] , score , nodeseeds[name], " ".join(nbmods) ])
 
 with open(os.path.join(resultpath, "top_hubs.csv"), 'w') as file:
-    file.write("Candidate,Score,is a seed\n")
+    file.write("Candidate,Score,is a seed, connecting sub-modules\n")
 
-    for name, score,seed in formatted:
-        file.write(f"{name},{score},{seed}\n")
+    for name, score,seed,mods in formatted:
+        file.write(f"{name},{score},{seed},{mods}\n")
 
-
-
-
-path = "outputs/results"
-for _,_,files in os.walk(path):
-    for file in files:
-        if file[-5:] == ".gexf":
-            graph = nx.read_gexf(os.path.join(path,file))
-
-            clusters_as_david_list(graph, 'label_propagation', os.path.join(path, f"DAVID.tsv"))
+#
+# path = "outputs/results"
+# for _,_,files in os.walk(path):
+#     for file in files:
+#         if file[-5:] == ".gexf":
+#             graph = nx.read_gexf(os.path.join(path,file))
+#
+#             clusters_as_david_list(graph, 'louvain', os.path.join(path, f"DAVID.tsv"))
