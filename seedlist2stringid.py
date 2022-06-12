@@ -13,7 +13,7 @@ seedfile = "txt/manual_mined_seeds.txt"
 seedout = "txt/string_seeds.txt"
 
 
-def prot2stringid(protlist, aliasfile):
+def prot2stringid(protlist, aliasfile=aliases):
     """
     method that takes a list of proteins as a seed file and returns a list of STRINGIDs corresponding to the proteins
     after looking them up against a given aliasfile

@@ -150,40 +150,41 @@ outputdir = "outputs/results"
 dframe2 = "txt/uniprot_original.csv"
 frame = pd.read_csv(dframe2, delimiter=',')
 
-for _, _, files in os.walk('outputs/graphs'):
-    for file in files:
-        if "seedsAndGO" not in file:
-            print(file)
-            graph = nx.read_gexf(os.path.join('outputs/graphs', file))
+if __name__ == "__main__":
 
-            # Do greedy clustering
-            try:
-                attr = 'greedy_clusters'
-                proteins = nx.community.greedy_modularity_communities(graph)
+    for _, _, files in os.walk('outputs/graphs'):
+        for file in files:
+            if "seedsAndGO" not in file:
+                graph = nx.read_gexf(os.path.join('outputs/graphs', file))
 
-                graph = add_clustering_as_attr(graph, proteins, attr)
-                graph = partition_coefficient(graph, attr)
-            except ZeroDivisionError:
-                None
-            except StopIteration:
-                None
+                # Do greedy clustering
+                try:
+                    attr = 'greedy_clusters'
+                    proteins = nx.community.greedy_modularity_communities(graph)
 
-            # Do label propagation
-            try:
-                attr = 'label_propagation'
-                proteins = nx.community.label_propagation_communities(graph)
+                    graph = add_clustering_as_attr(graph, proteins, attr)
+                    graph = partition_coefficient(graph, attr)
+                except ZeroDivisionError:
+                    None
+                except StopIteration:
+                    None
 
-                graph = add_clustering_as_attr(graph, proteins, attr)
-                graph = partition_coefficient(graph, attr)
-            except ZeroDivisionError:
-                None
-            # Do louvain community detection
-            try:
-                attr = 'louvain'
-                proteins = nx.community.louvain_communities(graph)
+                # Do label propagation
+                try:
+                    attr = 'label_propagation'
+                    proteins = nx.community.label_propagation_communities(graph)
 
-                graph = add_clustering_as_attr(graph, proteins, attr)
-                graph = partition_coefficient(graph, attr)
-            except ZeroDivisionError:
-                None
-        nx.write_gexf(graph, os.path.join('outputs/results', file))
+                    graph = add_clustering_as_attr(graph, proteins, attr)
+                    graph = partition_coefficient(graph, attr)
+                except ZeroDivisionError:
+                    None
+                # Do louvain community detection
+                try:
+                    attr = 'louvain'
+                    proteins = nx.community.louvain_communities(graph)
+
+                    graph = add_clustering_as_attr(graph, proteins, attr)
+                    graph = partition_coefficient(graph, attr)
+                except ZeroDivisionError:
+                    None
+            nx.write_gexf(graph, os.path.join('outputs/results', file))

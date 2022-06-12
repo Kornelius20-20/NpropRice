@@ -3,8 +3,6 @@ import networkx as nx
 
 
 stringseeds = "txt/string_seeds.txt"
-g = "outputs/p-w=10-a=0.1-i=40_NP.gexf"
-
 
 with open(stringseeds, 'r') as file:
     stringseeds = [line.strip() for line in file.readlines()]
@@ -83,52 +81,62 @@ def hishigaki_single_function_predictor(graph, seed_list, n=3) -> dict:
 
     return cands
 
-def do_hishi():
-    manualseeds = "txt/string_seeds.txt"
-    with open(manualseeds, 'r') as file:
-        manualseeds = [line.strip() for line in file.readlines()]
+def remove_strays(graph):
+    # Get largest connected component
+    comp = sorted(nx.connected_components(graph), key=len, reverse=True)[0]
 
-    graph = nx.read_gexf("outputs/p-w=100-a=0.1-i=5_NP.gexf")
+    # Get the subgraph consisting of only the largest component
+    graph = nx.subgraph(graph,comp)
 
-    keys,values = zip(*hishigaki_single_function_predictor(graph,manualseeds,500).items())
+    return graph
 
-    from get_high_scores import descendingnodes
+def convert_labels(graph,source = 'Uniprot'):
+    from stringInteractions2namedInteractions import stringidconvert,create_aliasdict,aliasfile
 
-    results,nums = descendingnodes(keys,values,True)
+    aliasdict = create_aliasdict(aliasfile)
 
-    results.extend(manualseeds)
+    # Change node labels to uniprot names
+    for node in graph.nodes:
+        graph.nodes[node]['label'] = stringidconvert([node], aliasdict, source)[0]
 
-    from wrapper import get_drought_module,add_seeds
-
-    graph = get_drought_module("txt/ppi.tsv",results)
-    add_seeds(graph,manualseeds)
-
-    nx.write_gexf(graph,"test.gexf")
+    return graph
 
 
-def add_as_seeds_code():
-    for _,_,files in os.walk("outputs"):
+resultpath = "outputs/results"
+graph = nx.read_gexf('outputs/results/p-w=100-a=0.1-i=5_NP_250.gexf')
+graph = convert_labels(graph)
+nx.write_gexf(graph, 'outputs/results/p-w=100-a=0.1-i=5_NP_250.gexf')
 
-        for file in files:
+nodeseeds = {}
+for node in graph.nodes:
+    key = graph.nodes[node]['label']
+    try:
+        value = graph.nodes[node]['seed']
+    except KeyError:
+        value = False
+    nodeseeds[key] = value
 
-            graph = nx.read_gexf(os.path.join("outputs",file))
+from wrapper import get_top
 
-            for node in manualseeds:
-                try:
-                    graph.nodes[node]['isSeed'] = True
-                except KeyError:
-                    None
+# Get top component of graph
+maincomp = remove_strays(graph)
 
-            nx.write_gexf(graph,os.path.join("outputs",file))
+nodes = get_top(maincomp, f"label_propagation_PC", howmany=10, returnscores=True)
 
-        break
+nodes = list(zip(nodes[0], nodes[1]))
+
+with open(os.path.join(resultpath, "top_hubs.csv"), 'w') as file:
+    file.write("Candidate,Score,is a seed\n")
+    for name, score in nodes:
+        file.write(f"{name},{score},{nodeseeds[name]}\n")
+
+print(" or ".join([i[0] for i in nodes]))
 
 
-for _,_,files in os.walk("outputs/results"):
-
+path = "outputs/results"
+for _,_,files in os.walk(path):
     for file in files:
         if file[-5:] == ".gexf":
+            graph = nx.read_gexf(os.path.join(path,file))
 
-            graph = nx.read_gexf(os.path.join("outputs/results",file))
-
-            clusters_as_david_list(graph,'label_propagation',os.path.join("outputs/results",f"{file[:-5]}.tsv"))
+            clusters_as_david_list(graph, 'label_propagation', os.path.join(path, f"DAVID.tsv"))

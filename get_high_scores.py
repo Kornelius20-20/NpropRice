@@ -27,7 +27,7 @@ def descendingnodes(nodes,weights,returnboth=False):
 
     if returnboth:
         weightlist = [weights[i] for i in weightnp]
-        return list(reversed(nodelist)),list(reversed(weightlist))
+        return [list(reversed(nodelist)),list(reversed(weightlist))]
     else: return list(reversed(nodelist))
 
 
