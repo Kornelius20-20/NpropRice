@@ -61,7 +61,7 @@ def stringidconvert(proteinlist,aliasdict=create_aliasdict(aliasfile),source='BL
 
     return outputproteins
 
-def id2stringdict(aliasfile,source='BLAST_UniProt_ID'):
+def id2stringdict(aliasfile=aliasfile,source='BLAST_UniProt_ID'):
     """
     Function that will take in an aliasfile and convert it into an aliasdict dictionary. It will then create a new
     dictionary where the key is the name of a protein in the given source format andt he value is the STRING ID of the

@@ -114,7 +114,7 @@ for node in graph.nodes:
     nodeseeds[key] = value
 
 from wrapper import get_top
-from stringInteractions2namedInteractions import stringidconvert,aliasfile,create_aliasdict
+from stringInteractions2namedInteractions import stringidconvert,aliasfile,create_aliasdict,id2stringdict
 
 aliasdict = create_aliasdict(aliasfile)
 
@@ -125,18 +125,19 @@ nodes = list(get_top(maincomp, f"louvain_PC", howmany=10, returnscores=True))
 
 
 formatted = []
+neighbors = {}
 for name, score in zip(nodes[0], nodes[1]):
 
-    nbs = nx.neighbors(graph,name)
+    nbs = [node for node in nx.neighbors(graph,name)]
     nbmods = set([str(graph.nodes[node]['louvain']) for node in nbs])
-
+    neighbors[name] = nbs
     formatted.append([ stringidconvert([name],aliasdict)[0] , score , nodeseeds[name], " ".join(nbmods) ])
 
-with open(os.path.join(resultpath, "top_hubs.csv"), 'w') as file:
-    file.write("Candidate,Score,is a seed, connecting sub-modules\n")
-
-    for name, score,seed,mods in formatted:
-        file.write(f"{name},{score},{seed},{mods}\n")
+# with open(os.path.join(resultpath, "top_hubs.csv"), 'w') as file:
+#     file.write("Candidate,Score,is a seed, connecting sub-modules\n")
+#
+#     for name, score,seed,mods in formatted:
+#         file.write(f"{name},{score},{seed},{mods}\n")
 
 #
 # path = "outputs/results"
@@ -146,3 +147,24 @@ with open(os.path.join(resultpath, "top_hubs.csv"), 'w') as file:
 #             graph = nx.read_gexf(os.path.join(path,file))
 #
 #             clusters_as_david_list(graph, 'louvain', os.path.join(path, f"DAVID.tsv"))
+
+newnbs = {}
+for key,value in neighbors.items():
+    newnbs[stringidconvert([key],aliasdict)[0]] = stringidconvert(value,aliasdict)
+
+# Get Id converting dict
+iddict = id2stringdict()
+
+# get annotations
+import gzip
+annotdict = {}
+with gzip.open("gz/39947.protein.info.v11.5.txt.gz",'rt') as file:
+    data = [line.strip().split('\t') for line in file.readlines()]
+    for line in data:
+        annotdict[line[0]] = line[-1]
+
+with open(os.path.join(resultpath,"connectedprots.tsv"),'w') as file:
+    file.write("Predicted hub\tConnected nodes\tAnnotation\n")
+    for key,value in newnbs.items():
+        for val in value:
+            file.write(f"{key}\t{val}\t{annotdict[iddict[val]]}\n")

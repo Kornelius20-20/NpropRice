@@ -4,9 +4,7 @@ Attempt to code network propagation
 import sys
 
 import networkx as nx
-import numpy
 import numpy as np
-# import cupy as cp
 import os
 from stringInteractions2namedInteractions import create_aliasdict
 
@@ -62,35 +60,49 @@ def _rwr(p0, alpha, A, invD, iter):
     :return: numpy array of final weights of nodes
     """
 
-    invD = np.array(invD)
-    cA = np.array(A.toarray())
+    # Attempt to do rwr using a present cupy library if available. If not, fall back to the numpy implementation
+    try:
+        import cupy as cp
 
-    W = np.matmul(cA, invD)
+        invD = cp.array(invD)
+        cA = cp.array(A.toarray())
 
-    # RWR
-    alp0 = np.array(alpha * p0)
-    p = alp0
-    for i in range(iter):
-        p = alp0 + (1 - alpha) * np.dot(W, p)
+        W = cp.matmul(cA, invD)
 
-    return p
+        # RWR
+        alp0 = cp.array(alpha * p0)
+        p = alp0
+        for i in range(iter):
+            p = alp0 + (1 - alpha) * cp.dot(W, p)
+
+        return p
+
+    except:
+        invD = np.array(invD)
+        cA = np.array(A.toarray())
+
+        W = np.matmul(cA, invD)
+
+        # RWR
+        alp0 = np.array(alpha * p0)
+        p = alp0
+        for i in range(iter):
+            p = alp0 + (1 - alpha) * np.dot(W, p)
+
+        return p
 
 
 def graph_with_weights(wgraph, alias_key, p, outcode='outputgraph', scale=True):
     """
-    Assigns node label in graph to its uniprot name, assigns its weight from the network propagation output (p)
-    optionally will also scale the weights and skip labeling and adding weights to nodes that do not have a
-    weight score higher than the cutoff.
-    Writes the subgraph from the selected nodes into a gexf file and returns a string with the relative path
-    of the written graph file
+    assigns its weight from the network propagation output (p) to each node.optionally will also scale the weights and
+    skip labeling and adding weights to nodes that do not have a weight score higher than the cutoff.Writes the subgraph
+    from the selected nodes into a gexf file and returns a string with the relative path of the written graph file
 
     :param wgraph: input graph
-    :param alias_key: dict with keys as string IDs and values as alias names
     :param p: weights to be added to the nodes
     :param outcode: name of the output gexf file
     :param scale: whether to scale the weights. Default = True
-    :param cutoff: whether to implement a cutoff. Default = 0 ie no cutoff
-    :return: path to output gexf file
+    :return: graph file
     """
 
     # Rescale the weights between 0 and the scale_limit value
@@ -99,22 +111,12 @@ def graph_with_weights(wgraph, alias_key, p, outcode='outputgraph', scale=True):
     sub_nodes = []
     i = 0
     for node in wgraph.nodes:  # for each node
-        # change its label
-        wgraph.nodes[node]['label'] = alias_key[node].get("Uniprot", alias_key[node]["Uniprot"])
         # add it's weight
         wgraph.nodes[node]['weight'] = p[i]
 
         i += 1
 
-    # Create directories to hold output files
-    if not os.path.exists("/outputs"):
-        os.makedirs('/outputs')
-        if not os.path.exists("outputs/graphs"):
-            os.makedirs('outputs/graphs')
-
-    nx.write_gexf(wgraph, f"outputs/{outcode}_NP.gexf")
-
-    return outcode+"_NP.gexf"
+    return wgraph
 
 
 def netprop(graph, seedlist, aliasfile, weight, alpha, iter, scale=True, regen=False):
@@ -163,12 +165,7 @@ def netprop(graph, seedlist, aliasfile, weight, alpha, iter, scale=True, regen=F
     # Do a random walk for some iterations and get the final weight vector for nodes
     p = _rwr(p0, alpha, A, invD, iter)
 
-    # save output numpy array
     outcode = f"{outfile}-w={weight}-a={alpha}-i={iter}"
-    outnpy = outcode + ".npy"
-    with open(outnpy, 'wb') as file:
-        np.save(file, p)
-
     graphname = graph_with_weights(graph, alias_key, p, outcode, scale)
 
     return graphname
