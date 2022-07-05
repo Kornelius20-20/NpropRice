@@ -92,7 +92,7 @@ def _rwr(p0, alpha, A, invD, iter):
         return p
 
 
-def graph_with_weights(wgraph, alias_key, p, outcode='outputgraph', scale=True):
+def graph_with_weights(wgraph, p, outcode='outputgraph', scale=True):
     """
     assigns its weight from the network propagation output (p) to each node.optionally will also scale the weights and
     skip labeling and adding weights to nodes that do not have a weight score higher than the cutoff.Writes the subgraph
@@ -102,7 +102,7 @@ def graph_with_weights(wgraph, alias_key, p, outcode='outputgraph', scale=True):
     :param p: weights to be added to the nodes
     :param outcode: name of the output gexf file
     :param scale: whether to scale the weights. Default = True
-    :return: graph file
+    :return: graph with weights added
     """
 
     # Rescale the weights between 0 and the scale_limit value
@@ -112,26 +112,24 @@ def graph_with_weights(wgraph, alias_key, p, outcode='outputgraph', scale=True):
     i = 0
     for node in wgraph.nodes:  # for each node
         # add it's weight
-        wgraph.nodes[node]['weight'] = p[i]
+        wgraph.nodes[node]['propagated_weight'] = p[i]
 
         i += 1
 
     return wgraph
 
 
-def netprop(graph, seedlist, aliasfile, weight, alpha, iter, scale=True, regen=False):
+def netprop(graph, seedlist, weight, alpha, iter, scale=True, regen=False):
     """
-    Does network propagation in the given graph for the given seeds. The aliasfile is used to replace graph labels with
-    the label in the aliasfile. The method can run for multiple times based on the number of values in the weight, alpha
-    and iter lists (once for each combination). Optionally the weight values can be scaled and a cutoff value put for
-    weights. The regen bool determines whether or not to regenerate the numpy arrays corresponding to a matrix used in
-    the calculation. This can be set to false to allow matrices that do not change (ie degree matrix inverse, adjacency
-    matrix etc) to be reused. This significantly reduces processing time when multiple values are used for weight/alpha/
-    iter
+    Does network propagation in the given graph for the given seeds. The method can run for multiple times based on the
+    number of values in the weight, alpha and iter lists (once for each combination). Optionally the weight values can
+    be scaled and a cutoff value put for weights. The regen bool determines whether or not to regenerate the numpy
+    arrays corresponding to a matrix used in the calculation. This can be set to false to allow matrices that do not
+    change (ie degree matrix inverse, adjacency matrix etc) to be reused. This significantly reduces processing time
+    when multiple values are used for weight/alpha/iter
 
     :param graph: input graph
     :param seedlist: path to seed file
-    :param aliasfile: path to gz file with STRING db aliases
     :param weight: list of default weight values to give when initializing network propagation
     :param alpha: list of alpha values (learning parameter) to give when initializing network propagation
     :param iter: list of iteration numbers to give when initializing network propagation
@@ -158,14 +156,12 @@ def netprop(graph, seedlist, aliasfile, weight, alpha, iter, scale=True, regen=F
             i += 1
         invD = np.linalg.inv(D)
 
-    alias_key = create_aliasdict(aliasfile)
-
     # Input weights for network
     p0 = weights_from_seeds(graph, seedlist, weight)
     # Do a random walk for some iterations and get the final weight vector for nodes
     p = _rwr(p0, alpha, A, invD, iter)
 
     outcode = f"{outfile}-w={weight}-a={alpha}-i={iter}"
-    graphname = graph_with_weights(graph, alias_key, p, outcode, scale)
+    graphname = graph_with_weights(graph, p, outcode, scale)
 
     return graphname

@@ -36,7 +36,7 @@ weight = [100]
 # restart parameter
 alpha = [0.1]
 
-cutoffs = [10.0]
+# cutoffs = [10.0]
 
 # Create directories to hold output files
 if not os.path.exists("/outputs"):
@@ -56,7 +56,7 @@ def generate_graphs(weight,alpha,iter):
         for j in range(len(alpha)):
             for k in range(len(iter)):
                 # Run network propagation with the given values
-                graphfile = netprop.netprop(maingraph, seedlist, aliasfile, weight[i], alpha[j], iterevery=5,iterend=10, regen=regen)
+                graphfile = netprop.netprop(maingraph, seedlist, weight[i], alpha[j], iterevery=5,iterend=10, regen=regen)
 
 def cutoff_graph(graphname,attr,cutoffs):
 
@@ -89,13 +89,6 @@ def get_top(graph,attr,howmany=100,returnscores=False):
 
         return topnamesandscores
 
-def add_seeds(graph,seedlist):
-    # Mark nodes
-    for node in seedlist:
-        try:
-            graph.nodes[node]['isSeed'] = True
-        except KeyError:
-            None
 
     return graph
 
