@@ -48,15 +48,17 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('graph') # path to gz file containing graph data
     parser.add_argument('seeds') # a plain text list of seed proteins as STRING IDs
-    parser.add_argument("-w", default=100, help="either a single weight value or comma separated string of values")
-    parser.add_argument("-a", default=0.1, help="either a single learning parameter value or comma separated string of"
-                                                " values")
-    parser.add_argument("-i", default=5, help="either a single value for iterations or comma separated string of"
-                                              " values")
+    parser.add_argument("-w", "--weights", default=100, help="either a single weight value or comma separated string"
+                                                             " of values")
+    parser.add_argument("-a", "--alphas", default=0.1, help="either a single learning parameter value or comma "
+                                                            "separated string of values")
+    parser.add_argument("-i", "--iteration_numbers", default=5, help="either a single value for iterations or comma "
+                                              "separated string of values")
     parser.add_argument("-mark", default=True, help="boolean value for whether the seeds should be marked or not")
-    parser.add_argument("-reg", default=False, help="boolean value for whether to regenerate the matrices during"
-                                                    " multiple runs")
-    parser.add_argument("-cut", default=0.7, help="cutoff value between 0 and 1 of score cutoff for interactions")
+    parser.add_argument("-reg", "--regen", default=False, help="boolean value for whether to regenerate the matrices"
+                                                               " during multiple runs")
+    parser.add_argument("-cut" , "--cutoff", default=0.7, help="cutoff value between 0 and 1 of score cutoff for "
+                                                               "interactions")
     args = parser.parse_args()
 
     # Convert each argument to list form to preserve compatibility with multiple inputs for each parameter
