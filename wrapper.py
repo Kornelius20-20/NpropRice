@@ -12,7 +12,7 @@ network propagation
 
 import networkx as nx
 import pandas as pd
-import netprop_copy as netprop
+from newnetprop import netprop
 import os
 
 import stringInteractions2namedInteractions
@@ -27,7 +27,7 @@ outputdir = "outputs/graphs"
 regen = False
 
 # Load graph
-maingraph = nx.read_gexf('graph.gexf')
+maingraph = nx.read_gexf('graph_test.gexf')
 # number of iterations to run to the random walk
 iter = [5]
 # following parameters should be given in list form
@@ -92,6 +92,17 @@ def get_top(graph,attr,howmany=100,returnscores=False):
 
     return graph
 
+def add_seeds(graph,seedlist):
+    # Mark nodes
+    for node in seedlist:
+        try:
+            graph.nodes[node]['isSeed'] = True
+        except KeyError:
+            None
+
+    return graph
+
+
 if __name__=="__main__":
     from stringInteractions2namedInteractions import stringidconvert,create_aliasdict
 
@@ -104,7 +115,7 @@ if __name__=="__main__":
 
     # generate_graphs(weight,alpha,iter)
 
-    iterations = [250]
+    iterations = [50,100,250,500]
 
     for i in iterations:
 
@@ -113,7 +124,7 @@ if __name__=="__main__":
             for file in files:
                 graph = nx.read_gexf(os.path.join("outputs",file))
 
-                predicts = get_top(graph,'weight',howmany=i)
+                predicts = get_top(graph,'propagated_weight',howmany=i)
                 predicts.extend(manualseeds)
 
                 graph = nx.subgraph(graph,predicts)
