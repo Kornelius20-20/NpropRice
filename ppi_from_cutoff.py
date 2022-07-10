@@ -13,7 +13,7 @@ import gzip
 path = os.getcwd()
 ppi = "gz/39947.protein.links.detailed.v11.5.txt.gz" # ppi file
 output = "txt/ppi.tsv"
-cutoff = 0.40
+cutoff = 0.80
 
 
 newfile = open(os.path.join(path,output),'w')

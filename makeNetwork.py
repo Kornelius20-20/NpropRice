@@ -57,4 +57,4 @@ if __name__ == "__main__":
 
     if do_search: graph = do_community_search(graph,seedfile)
     # write graph as gexf file
-    nx.write_gexf(graph,"graph.gexf")
+    nx.write_gexf(graph,"graph_test.gexf")
