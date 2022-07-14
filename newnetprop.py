@@ -27,7 +27,7 @@ def weights_from_seeds(graph, seeds):
 
     p0 = csc_array(p0)
 
-    return p0#.transpose()
+    return p0.transpose()
 
 
 def netprop(graph,seeds,alpha = 0.01,iter=0,threshold = 1.0e-6):
@@ -44,22 +44,24 @@ def netprop(graph,seeds,alpha = 0.01,iter=0,threshold = 1.0e-6):
 
     p0 = weights_from_seeds(graph,seeds)
 
-    p = p0
+    p = alpha * p0
 
     if iter > 0:
         for i in range(iter):
             p = alpha*p0 + (1-alpha)*A *p
 
     else:
-        counter = 1
+        num_iters = 1
 
-        p = alpha * p0 + (1 - alpha) * A.multiply(p)
-        _p = csc_array(p.shape)
+        p = alpha * p0 + (1 - alpha) * A * p
+        _p = csc_array(p.shape, dtype=float)
+
         while (p.sum() - _p.sum()) > threshold:
+            _p = p.copy()
+            p = alpha * p0 + (1 - alpha) * A * p
+            num_iters += 1
 
-            _p = p
-            p = alpha * p0 + (1 - alpha) * A.multiply(p)
-            counter+=1
+    print(f"RWR ran for {num_iters} iterations")
 
-    print(counter)
+
     return p.toarray()
