@@ -31,6 +31,20 @@ def weights_from_seeds(graph, seeds):
 
 
 def netprop(graph,seeds,alpha = 0.01,iter=0,threshold = 1.0e-6):
+    """
+    Given a networkx graph and a list of seeds, assigns a weight to each seed and propagates it out into
+    the network for a certain number of iterations or until a threshold for the sum of node weights is 
+    reached.
+
+    :param graph: input graph
+    :param seedlist: list of seed nodes
+    :param alpha: learning rate
+    :param iter: number of iterations to restart the walk
+    :param threshold: limit of change of weight at which the rwr is stopped
+    :return: numpy array of final weights of nodes
+    
+    """
+
 
     A = nx.adjacency_matrix(graph).tocsc()
 
