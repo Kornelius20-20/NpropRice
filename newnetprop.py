@@ -41,9 +41,7 @@ def netprop(graph,seeds,alpha = 0.7,num_iters=0,threshold = 1.0e-10):
     
     """
 
-
-    A = nx.adjacency_matrix(graph).tocsc()
-    A = csc_array(A,dtype="float64")
+    A = csc_array(nx.adjacency_matrix(graph),dtype="float64")
 
     # Normalize adjacency matrix
     for i in range(A.shape[1]):
