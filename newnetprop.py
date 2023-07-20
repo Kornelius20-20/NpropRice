@@ -62,7 +62,6 @@ def netprop(graph,seeds,alpha = 0.7,num_iters=0,threshold = 1.0e-10):
         for i in range(num_iters):
             _p = p.copy()
             p = const_fact + (1-alpha)*A.dot(p)
-            print(f"change in probability: {p.sum() - _p.sum()}")
 
     else:
         num_iters = 1
@@ -74,11 +73,5 @@ def netprop(graph,seeds,alpha = 0.7,num_iters=0,threshold = 1.0e-10):
             _p = p.copy()
             p = const_fact + (1-alpha)*A.dot(p)
             num_iters += 1
-
-            print(f"change in probability: {p.sum() - _p.sum()}")
-
-
-    print(f"RWR ran for {num_iters} iterations")
-
 
     return p.toarray()
