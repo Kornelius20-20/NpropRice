@@ -57,7 +57,7 @@ def descendingdictkeys(inputdict, ascending=False, onlykeys=False, onlyvalues=Fa
 
 
 # calculating partition coefficient
-def partition_coefficient(graph, cluster_attr='cluster'):
+def participation_coefficient(graph, cluster_attr='cluster'):
     # Get total number of clusters
     totclust = max(nx.get_node_attributes(graph, cluster_attr).values())
 
@@ -145,12 +145,13 @@ def transpose_lists(inputlist):
     return newlist
 
 
-aliasfile = "gz/39947.protein.aliases.v11.5.txt.gz"
-outputdir = "outputs/results"
-dframe2 = "txt/uniprot_original.csv"
-frame = pd.read_csv(dframe2, delimiter=',')
 
 if __name__ == "__main__":
+    
+    aliasfile = "gz/39947.protein.aliases.v11.5.txt.gz"
+    outputdir = "outputs/results"
+    dframe2 = "txt/uniprot_original.csv"
+    frame = pd.read_csv(dframe2, delimiter=',')
 
     for _, _, files in os.walk('outputs/graphs'):
         for file in files:
@@ -163,7 +164,7 @@ if __name__ == "__main__":
                     proteins = nx.community.greedy_modularity_communities(graph)
 
                     graph = add_clustering_as_attr(graph, proteins, attr)
-                    graph = partition_coefficient(graph, attr)
+                    graph = participation_coefficient(graph, attr)
                 except ZeroDivisionError:
                     None
                 except StopIteration:
@@ -175,7 +176,7 @@ if __name__ == "__main__":
                     proteins = nx.community.label_propagation_communities(graph)
 
                     graph = add_clustering_as_attr(graph, proteins, attr)
-                    graph = partition_coefficient(graph, attr)
+                    graph = participation_coefficient(graph, attr)
                 except ZeroDivisionError:
                     None
                 # Do louvain community detection
@@ -184,7 +185,7 @@ if __name__ == "__main__":
                     proteins = nx.community.louvain_communities(graph)
 
                     graph = add_clustering_as_attr(graph, proteins, attr)
-                    graph = partition_coefficient(graph, attr)
+                    graph = participation_coefficient(graph, attr)
                 except ZeroDivisionError:
                     None
             nx.write_gexf(graph, os.path.join('outputs/results', file))

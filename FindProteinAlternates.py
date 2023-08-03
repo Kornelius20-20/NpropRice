@@ -11,7 +11,7 @@ proteins
 
 """
 
-from JCNUParser import aliasesFromFile
+from oldfiles.JCNUParser import aliasesFromFile
 
 aliasfile = r"gz/4530.protein.aliases.v11.0.txt.gz"
 

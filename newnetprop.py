@@ -3,7 +3,7 @@ from scipy.sparse import csc_array
 import os
 
 
-def weights_from_seeds(graph, seeds):
+def weights_from_seeds(graph, seeds,initial_weight=1.0):
     """
     Takes an input graph and creates a list of weights for the graph nodes, where each seed node from a list
     of seeds will get assigned the starting weight value (defaults to 100) and all other nodes will start at
@@ -19,7 +19,7 @@ def weights_from_seeds(graph, seeds):
 
     for name in graph.nodes:
         if name in seeds:
-            p0.append(nx.degree(graph,name))
+            p0.append(initial_weight)
         else:
             p0.append(0)
 
